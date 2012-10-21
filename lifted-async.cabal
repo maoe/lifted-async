@@ -1,0 +1,39 @@
+name:                lifted-async
+version:             0.0.0
+synopsis:            Run lifted IO operations asynchronously and wait for their results
+homepage:            https://github.com/maoe/lifted-async
+license:             BSD3
+license-file:        LICENSE
+author:              Mitsutoshi Aoe
+maintainer:          Mitsutoshi Aoe <maoe@foldr.in>
+copyright:           (C) Mitsutoshi Aoe 2012
+category:            Concurrency
+build-type:          Simple
+cabal-version:       >=1.8
+
+library
+  exposed-modules:
+    Control.Concurrent.Async.Lifted
+  build-depends:
+      base
+    , async >= 2.0.1
+    , lifted-base >= 0.2
+    , monad-control >= 0.3.1
+    , transformers-base >= 0.4
+  ghc-options: -Wall
+  hs-source-dirs: src
+
+test-suite test-lifted-async
+  type: exitcode-stdio-1.0
+  hs-source-dirs: tests
+  main-is: TestSuite.hs
+  build-depends:
+      base
+    , lifted-async
+    , test-framework
+    , test-framework-hunit
+    , HUnit
+
+source-repository head
+  type: git
+  location: https://github.com/maoe/lifted-async.git
