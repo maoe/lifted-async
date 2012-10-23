@@ -16,19 +16,19 @@ main = defaultMain
   ]
 
 race_async :: IO ()
-race_async = whnfIO $ A.race (return 1) (return 2)
+race_async = nfIO $ A.race (return (1 :: Int)) (return (2 :: Int))
 
 race_liftedAsync :: IO ()
-race_liftedAsync = whnfIO $ L.race (return 1) (return 2)
+race_liftedAsync = nfIO $ L.race (return (1 :: Int)) (return (2 :: Int))
 
 concAsync_async :: IO ()
-concAsync_async = whnfIO $
-  A.withAsync (return 1) $ \a ->
-    A.withAsync (return 2) $ \b ->
+concAsync_async = nfIO $
+  A.withAsync (return (1 :: Int)) $ \a ->
+    A.withAsync (return (2 :: Int)) $ \b ->
       A.waitBoth a b
 
 concAsync_liftedAsync :: IO ()
-concAsync_liftedAsync = whnfIO $
-  L.withAsync (return 1) $ \a ->
-    L.withAsync (return 2) $ \b ->
+concAsync_liftedAsync = nfIO $
+  L.withAsync (return (1 :: Int)) $ \a ->
+    L.withAsync (return (2 :: Int)) $ \b ->
       L.waitBoth a b
