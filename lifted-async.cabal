@@ -11,6 +11,10 @@ category:            Concurrency
 build-type:          Simple
 cabal-version:       >= 1.8
 
+description:
+  This package provides IO operations from @async@ package lifted to any
+  instance of 'MonadBase' or 'MonadBaseControl'.
+
 library
   exposed-modules:
     Control.Concurrent.Async.Lifted
