@@ -5,6 +5,7 @@ module Test.Async.IO
   ) where
 import Control.Monad (when)
 import Data.Maybe (isJust, isNothing)
+import Prelude hiding (catch)
 
 import Control.Concurrent.Lifted
 import Control.Exception.Lifted
