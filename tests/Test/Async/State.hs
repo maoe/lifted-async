@@ -6,6 +6,7 @@ module Test.Async.State
 import Control.Monad (when)
 import Control.Monad.State
 import Data.Maybe (isJust, isNothing)
+import Prelude hiding (catch)
 
 import Control.Concurrent.Lifted
 import Control.Exception.Lifted
