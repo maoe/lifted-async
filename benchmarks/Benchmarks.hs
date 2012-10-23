@@ -6,12 +6,12 @@ import qualified Control.Concurrent.Async.Lifted as L
 main :: IO ()
 main = defaultMain
   [ bgroup "race"
-      [ bench "race/async" race_async
-      , bench "race/lifted-async" race_liftedAsync
+      [ bench "async" race_async
+      , bench "lifted-async" race_liftedAsync
       ]
   , bgroup "concAsync"
-      [ bench "concAsync/async" concAsync_async
-      , bench "concAsync/lifted-async" concAsync_liftedAsync
+      [ bench "async" concAsync_async
+      , bench "lifted-async" concAsync_liftedAsync
       ]
   ]
 
