@@ -1,2 +1,4 @@
 language: haskell
-script: cabal configure --enable-tests --enable-benchmarks && cabal build && cabal test && cabal bench
+script: cabal configure --enable-tests --enable-benchmarks && cabal build && cabal test
+install: cabal install --enable-tests --enable-benchmarks
+after_install: cabal bench
