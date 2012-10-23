@@ -1,5 +1,17 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE RankNTypes #-}
+
+{- |
+Module      : Control.Concurrent.Async.Lifted
+Copyright   : (C) 2012 Mitsutoshi Aoe
+License     : BSD-style (see the file LICENSE)
+Maintainer  : Mitsutoshi Aoe <maoe@foldr.in>
+Stability   : experimental
+
+This is a wrapped version of "Control.Concurrent.Async" with types generalized
+from 'IO' to all monads in either 'MonadBase' or 'MonadBaseControl'.
+-}
+
 module Control.Concurrent.Async.Lifted
   ( -- * Asynchronous actions
     A.Async
@@ -42,15 +54,19 @@ import Control.Monad.Base (MonadBase(..))
 import Control.Monad.Trans.Control
 import qualified Control.Concurrent.Async as A
 
+-- | Generalized version of 'A.async'.
 async :: MonadBaseControl IO m => m a -> m (Async (StM m a))
 async = asyncUsing A.async
 
+-- | Generalized version of 'A.asyncBound'.
 asyncBound :: MonadBaseControl IO m => m a -> m (Async (StM m a))
 asyncBound = asyncUsing A.asyncBound
 
+-- | Generalized version of 'A.asyncOn'.
 asyncOn :: MonadBaseControl IO m => Int -> m a -> m (Async (StM m a))
 asyncOn cpu = asyncUsing (A.asyncOn cpu)
 
+-- | Generalized version of 'A.asyncWithUnmask'.
 asyncWithUnmask
   :: MonadBaseControl IO m
   => ((forall b. m b -> m b) -> m a)
@@ -58,6 +74,7 @@ asyncWithUnmask
 asyncWithUnmask actionWith =
   asyncUsing A.async (actionWith (liftBaseOp_ unsafeUnmask))
 
+-- | Generalized version of 'A.asyncOnWithUnmask'.
 asyncOnWithUnmask
   :: MonadBaseControl IO m
   => Int
@@ -74,6 +91,7 @@ asyncUsing
 asyncUsing fork m =
   liftBaseWith $ \runInIO -> fork (runInIO m)
 
+-- | Generalized version of 'A.withAsync'.
 withAsync
   :: MonadBaseControl IO m
   => m a
@@ -81,6 +99,7 @@ withAsync
   -> m b
 withAsync = withAsyncUsing async
 
+-- | Generalized version of 'A.withAsyncBound'.
 withAsyncBound
   :: MonadBaseControl IO m
   => m a
@@ -88,6 +107,7 @@ withAsyncBound
   -> m b
 withAsyncBound = withAsyncUsing asyncBound
 
+-- | Generalized version of 'A.withAsyncOn'.
 withAsyncOn
   :: MonadBaseControl IO m
   => Int
@@ -96,6 +116,7 @@ withAsyncOn
   -> m b
 withAsyncOn = withAsyncUsing . asyncOn
 
+-- | Generalized version of 'A.withAsyncWithUnmask'.
 withAsyncWithUnmask
   :: MonadBaseControl IO m
   => ((forall c. m c -> m c) -> m a)
@@ -104,6 +125,7 @@ withAsyncWithUnmask
 withAsyncWithUnmask actionWith =
   withAsyncUsing async (actionWith (liftBaseOp_ unsafeUnmask))
 
+-- | Generalized version of 'A.withAsyncOnWithUnmask'.
 withAsyncOnWithUnmask
   :: MonadBaseControl IO m
   => Int
@@ -121,9 +143,11 @@ withAsyncUsing
   -> m b
 withAsyncUsing fork action = bracket (fork action) cancel
 
+-- | Generalized version of 'A.wait'.
 wait :: MonadBaseControl IO m => Async (StM m a) -> m a
 wait = liftBase . A.wait >=> restoreM
 
+-- | Generalized version of 'A.poll'.
 poll
   :: MonadBaseControl IO m
   => Async (StM m a)
@@ -132,24 +156,29 @@ poll a =
   liftBase (A.poll a) >>=
   maybe (return Nothing) (liftM Just . sequenceEither)
 
+-- | Generalized version of 'A.waitCatch'.
 waitCatch
   :: MonadBaseControl IO m
   => Async (StM m a)
   -> m (Either SomeException a)
 waitCatch a = liftBase (A.waitCatch a) >>= sequenceEither
 
+-- | Generalized version of 'A.catch'.
 cancel :: MonadBase IO m => Async (StM m a) -> m ()
 cancel = liftBase . A.cancel
 
+-- | Generalized version of 'A.cancelWith'.
 cancelWith :: (MonadBase IO m, Exception e) => Async (StM m a) -> e -> m ()
 cancelWith = (liftBase .) . A.cancelWith
 
+-- | Generalized version of 'A.waitAny'.
 waitAny :: MonadBaseControl IO m => [Async (StM m a)] -> m (Async (StM m a), a)
 waitAny as = do
   (a, s) <- liftBase $ A.waitAny as
   r <- restoreM s
   return (a, r)
 
+-- | Generalized version of 'A.waitAnyCatch'.
 waitAnyCatch
   :: MonadBaseControl IO m
   => [Async (StM m a)]
@@ -159,9 +188,11 @@ waitAnyCatch as = do
   r <- sequenceEither s
   return (a, r)
 
+-- | Generalized version of 'A.waitAnyCancel'.
 waitAnyCancel :: MonadBase IO m => [Async a] -> m (Async a, a)
 waitAnyCancel = liftBase . A.waitAnyCancel
 
+-- | Generalized version of 'A.waitAnyCatchCancel'.
 waitAnyCatchCancel
   :: MonadBaseControl IO m
   => [Async (StM m a)]
@@ -171,6 +202,7 @@ waitAnyCatchCancel as = do
   r <- sequenceEither s
   return (a, r)
 
+-- | Generalized version of 'A.waitEither'.
 waitEither
   :: MonadBaseControl IO m
   => Async (StM m a)
@@ -180,6 +212,7 @@ waitEither a b =
   liftBase (A.waitEither a b) >>=
   either (liftM Left . restoreM) (liftM Right . restoreM)
 
+-- | Generalized version of 'A.waitEitherCatch'.
 waitEitherCatch
   :: MonadBaseControl IO m
   => Async (StM m a)
@@ -189,6 +222,7 @@ waitEitherCatch a b =
   liftBase (A.waitEitherCatch a b) >>=
   either (liftM Left . sequenceEither) (liftM Right . sequenceEither)
 
+-- | Generalized version of 'A.waitEitherCancel'.
 waitEitherCancel
   :: MonadBaseControl IO m
   => Async (StM m a)
@@ -198,6 +232,7 @@ waitEitherCancel a b =
   liftBase (A.waitEitherCancel a b) >>=
   either (liftM Left . restoreM) (liftM Right . restoreM)
 
+-- | Generalized version of 'A.waitEitherCatchCancel'.
 waitEitherCatchCancel
   :: MonadBaseControl IO m
   => Async (StM m a)
@@ -207,6 +242,7 @@ waitEitherCatchCancel a b =
   liftBase (A.waitEitherCatch a b) >>=
   either (liftM Left . sequenceEither) (liftM Right . sequenceEither)
 
+-- | Generalized version of 'A.waitEither_'.
 waitEither_
   :: MonadBaseControl IO m
   => Async (StM m a)
@@ -214,6 +250,7 @@ waitEither_
   -> m ()
 waitEither_ = (liftBase .) . A.waitEither_
 
+-- | Generalized version of 'A.waitBoth'.
 waitBoth
   :: MonadBaseControl IO m
   => Async (StM m a)
@@ -225,30 +262,36 @@ waitBoth a b = do
   rb <- restoreM sb
   return (ra, rb)
 
+-- | Generalized version of 'A.link'.
 link :: MonadBase IO m => Async (StM m a) -> m ()
 link = liftBase . A.link
 
+-- | Generalized version of 'A.link2'.
 link2 :: MonadBase IO m => Async (StM m a) -> Async (StM m b) -> m ()
 link2 = (liftBase .) . A.link2
 
+-- | Generalized version of 'A.race'.
 race :: MonadBaseControl IO m => m a -> m b -> m (Either a b)
 race left right =
   withAsync left $ \a ->
   withAsync right $ \b ->
   waitEither a b
 
+-- | Generalized version of 'A.race_'.
 race_ :: MonadBaseControl IO m => m a -> m b -> m ()
 race_ left right =
   withAsync left $ \a ->
   withAsync right $ \b ->
   waitEither_ a b
 
+-- | Generalized version of 'A.concurrently'.
 concurrently :: MonadBaseControl IO m => m a -> m b -> m (a, b)
 concurrently left right =
   withAsync left $ \a ->
   withAsync right $ \b ->
   waitBoth a b
 
+-- | Generalized version of 'A.mapConcurrently'.
 mapConcurrently
   :: (Traversable t, MonadBaseControl IO m)
   => (a -> m b)
