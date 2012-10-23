@@ -1,5 +1,5 @@
 name:                lifted-async
-version:             0.0.0
+version:             0.0.0.1
 synopsis:            Run lifted IO operations asynchronously and wait for their results
 homepage:            https://github.com/maoe/lifted-async
 license:             BSD3
@@ -19,7 +19,7 @@ library
   exposed-modules:
     Control.Concurrent.Async.Lifted
   build-depends:
-      base
+      base >= 4.3 && < 4.7
     , async >= 2.0.1
     , lifted-base >= 0.2
     , monad-control >= 0.3.1
