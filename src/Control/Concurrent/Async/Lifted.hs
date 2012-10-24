@@ -276,6 +276,7 @@ race left right =
   withAsync left $ \a ->
   withAsync right $ \b ->
   waitEither a b
+{-# INLINABLE race #-}
 
 -- | Generalized version of 'A.race_'.
 race_ :: MonadBaseControl IO m => m a -> m b -> m ()
@@ -283,6 +284,7 @@ race_ left right =
   withAsync left $ \a ->
   withAsync right $ \b ->
   waitEither_ a b
+{-# INLINABLE race_ #-}
 
 -- | Generalized version of 'A.concurrently'.
 concurrently :: MonadBaseControl IO m => m a -> m b -> m (a, b)
@@ -290,6 +292,7 @@ concurrently left right =
   withAsync left $ \a ->
   withAsync right $ \b ->
   waitBoth a b
+{-# INLINABLE concurrently #-}
 
 -- | Generalized version of 'A.mapConcurrently'.
 mapConcurrently
