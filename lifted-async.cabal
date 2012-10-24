@@ -55,6 +55,7 @@ benchmark benchmark-lifted-async
       base
     , async
     , criterion
+    , deepseq
     , lifted-async
 
 source-repository head
