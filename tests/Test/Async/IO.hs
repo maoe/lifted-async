@@ -1,7 +1,6 @@
 {-# LANGUAGE TemplateHaskell #-}
 module Test.Async.IO
   ( ioTestGroup
-  , ioTestGroupExtra
   ) where
 import Control.Monad (when)
 import Data.Maybe (isJust, isNothing)
@@ -16,11 +15,6 @@ import Test.Async.Common
 
 ioTestGroup :: Test
 ioTestGroup = $(testGroupGenerator)
-
-ioTestGroupExtra :: Test
-ioTestGroupExtra =
-  testGroup "async cancel rep" $
-    replicate 1000 $ testCase "async cancel" async_cancel
 
 case_async_waitCatch :: Assertion
 case_async_waitCatch = do
@@ -65,14 +59,16 @@ case_withAsync_wait2 = do
     Left e  -> fromException e @?= Just ThreadKilled
     Right _ -> assertFailure ""
 
-async_cancel :: Assertion
-async_cancel = do
-  a <- async (return value)
-  cancelWith a TestException
-  r <- waitCatch a
-  case r of
-    Left e -> fromException e @?= Just TestException
-    Right r -> r @?= value
+case_async_cancel :: Assertion
+case_async_cancel = sequence_ $ replicate 1000 run
+  where
+    run = do
+      a <- async (return value)
+      cancelWith a TestException
+      r <- waitCatch a
+      case r of
+        Left e -> fromException e @?= Just TestException
+        Right r -> r @?= value
 
 case_async_poll :: Assertion
 case_async_poll = do

@@ -7,7 +7,5 @@ import Test.Async.State
 
 main = defaultMain
   [ ioTestGroup
-  , ioTestGroupExtra
   , stateTestGroup
-  , stateTestGroupExtra
   ]
