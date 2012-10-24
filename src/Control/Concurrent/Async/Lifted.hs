@@ -43,7 +43,7 @@ module Control.Concurrent.Async.Lifted
   , A.Concurrently, A.runConcurrently
   ) where
 
-import Control.Monad ((>=>), liftM)
+import Control.Monad ((>=>), liftM, void)
 import Data.Traversable (Traversable(..))
 import GHC.IO (unsafeUnmask)
 import Prelude hiding (mapM)
@@ -248,7 +248,7 @@ waitEither_
   => Async (StM m a)
   -> Async (StM m b)
   -> m ()
-waitEither_ = (liftBase .) . A.waitEither_
+waitEither_ = (void .) . waitEither
 
 -- | Generalized version of 'A.waitBoth'.
 waitBoth
