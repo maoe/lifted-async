@@ -1,12 +1,13 @@
 name:                lifted-async
-version:             0.0.0.1
+version:             0.1.0
 synopsis:            Run lifted IO operations asynchronously and wait for their results
 homepage:            https://github.com/maoe/lifted-async
+bug-reports:         https://github.com/maoe/lifted-async/issues
 license:             BSD3
 license-file:        LICENSE
 author:              Mitsutoshi Aoe
 maintainer:          Mitsutoshi Aoe <maoe@foldr.in>
-copyright:           (C) Mitsutoshi Aoe 2012
+copyright:           (C) 2012 Mitsutoshi Aoe
 category:            Concurrency
 build-type:          Simple
 cabal-version:       >= 1.8
@@ -45,6 +46,17 @@ test-suite test-lifted-async
     , test-framework
     , test-framework-hunit
     , test-framework-th
+
+benchmark benchmark-lifted-async
+  type: exitcode-stdio-1.0
+  hs-source-dirs: benchmarks
+  main-is: Benchmarks.hs
+  build-depends:
+      base
+    , async
+    , criterion
+    , deepseq
+    , lifted-async
 
 source-repository head
   type: git

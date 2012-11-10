@@ -43,7 +43,7 @@ module Control.Concurrent.Async.Lifted
   , A.Concurrently, A.runConcurrently
   ) where
 
-import Control.Monad ((>=>), liftM)
+import Control.Monad ((>=>), liftM, void)
 import Data.Traversable (Traversable(..))
 import GHC.IO (unsafeUnmask)
 import Prelude hiding (mapM)
@@ -98,6 +98,7 @@ withAsync
   -> (Async (StM m a) -> m b)
   -> m b
 withAsync = withAsyncUsing async
+{-# INLINABLE withAsync #-}
 
 -- | Generalized version of 'A.withAsyncBound'.
 withAsyncBound
@@ -106,6 +107,7 @@ withAsyncBound
   -> (Async (StM m a) -> m b)
   -> m b
 withAsyncBound = withAsyncUsing asyncBound
+{-# INLINABLE withAsyncBound #-}
 
 -- | Generalized version of 'A.withAsyncOn'.
 withAsyncOn
@@ -115,6 +117,7 @@ withAsyncOn
   -> (Async (StM m a) -> m b)
   -> m b
 withAsyncOn = withAsyncUsing . asyncOn
+{-# INLINABLE withAsyncOn #-}
 
 -- | Generalized version of 'A.withAsyncWithUnmask'.
 withAsyncWithUnmask
@@ -124,6 +127,7 @@ withAsyncWithUnmask
   -> m b
 withAsyncWithUnmask actionWith =
   withAsyncUsing async (actionWith (liftBaseOp_ unsafeUnmask))
+{-# INLINABLE withAsyncWithUnmask #-}
 
 -- | Generalized version of 'A.withAsyncOnWithUnmask'.
 withAsyncOnWithUnmask
@@ -134,6 +138,7 @@ withAsyncOnWithUnmask
   -> m b
 withAsyncOnWithUnmask cpu actionWith =
   withAsyncUsing (asyncOn cpu) (actionWith (liftBaseOp_ unsafeUnmask))
+{-# INLINABLE withAsyncOnWithUnmask #-}
 
 withAsyncUsing
   :: MonadBaseControl IO m
@@ -248,7 +253,7 @@ waitEither_
   => Async (StM m a)
   -> Async (StM m b)
   -> m ()
-waitEither_ = (liftBase .) . A.waitEither_
+waitEither_ = (void .) . waitEither
 
 -- | Generalized version of 'A.waitBoth'.
 waitBoth
@@ -261,6 +266,7 @@ waitBoth a b = do
   ra <- restoreM sa
   rb <- restoreM sb
   return (ra, rb)
+{-# INLINABLE waitBoth #-}
 
 -- | Generalized version of 'A.link'.
 link :: MonadBase IO m => Async (StM m a) -> m ()
@@ -276,6 +282,7 @@ race left right =
   withAsync left $ \a ->
   withAsync right $ \b ->
   waitEither a b
+{-# INLINABLE race #-}
 
 -- | Generalized version of 'A.race_'.
 race_ :: MonadBaseControl IO m => m a -> m b -> m ()
@@ -283,6 +290,7 @@ race_ left right =
   withAsync left $ \a ->
   withAsync right $ \b ->
   waitEither_ a b
+{-# INLINABLE race_ #-}
 
 -- | Generalized version of 'A.concurrently'.
 concurrently :: MonadBaseControl IO m => m a -> m b -> m (a, b)
@@ -290,6 +298,7 @@ concurrently left right =
   withAsync left $ \a ->
   withAsync right $ \b ->
   waitBoth a b
+{-# INLINABLE concurrently #-}
 
 -- | Generalized version of 'A.mapConcurrently'.
 mapConcurrently
