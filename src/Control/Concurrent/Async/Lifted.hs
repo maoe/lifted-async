@@ -261,6 +261,7 @@ waitBoth a b = do
   ra <- restoreM sa
   rb <- restoreM sb
   return (ra, rb)
+{-# INLINABLE waitBoth #-}
 
 -- | Generalized version of 'A.link'.
 link :: MonadBase IO m => Async (StM m a) -> m ()
