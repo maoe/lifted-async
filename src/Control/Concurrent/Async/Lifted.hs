@@ -98,6 +98,7 @@ withAsync
   -> (Async (StM m a) -> m b)
   -> m b
 withAsync = withAsyncUsing async
+{-# INLINABLE withAsync #-}
 
 -- | Generalized version of 'A.withAsyncBound'.
 withAsyncBound
@@ -106,6 +107,7 @@ withAsyncBound
   -> (Async (StM m a) -> m b)
   -> m b
 withAsyncBound = withAsyncUsing asyncBound
+{-# INLINABLE withAsyncBound #-}
 
 -- | Generalized version of 'A.withAsyncOn'.
 withAsyncOn
@@ -115,6 +117,7 @@ withAsyncOn
   -> (Async (StM m a) -> m b)
   -> m b
 withAsyncOn = withAsyncUsing . asyncOn
+{-# INLINABLE withAsyncOn #-}
 
 -- | Generalized version of 'A.withAsyncWithUnmask'.
 withAsyncWithUnmask
@@ -124,6 +127,7 @@ withAsyncWithUnmask
   -> m b
 withAsyncWithUnmask actionWith =
   withAsyncUsing async (actionWith (liftBaseOp_ unsafeUnmask))
+{-# INLINABLE withAsyncWithUnmask #-}
 
 -- | Generalized version of 'A.withAsyncOnWithUnmask'.
 withAsyncOnWithUnmask
@@ -134,6 +138,7 @@ withAsyncOnWithUnmask
   -> m b
 withAsyncOnWithUnmask cpu actionWith =
   withAsyncUsing (asyncOn cpu) (actionWith (liftBaseOp_ unsafeUnmask))
+{-# INLINABLE withAsyncOnWithUnmask #-}
 
 withAsyncUsing
   :: MonadBaseControl IO m
