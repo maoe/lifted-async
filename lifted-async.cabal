@@ -43,9 +43,9 @@ test-suite test-lifted-async
     , lifted-base
     , monad-control
     , mtl
-    , test-framework
-    , test-framework-hunit
-    , test-framework-th
+    , tasty
+    , tasty-hunit
+    , tasty-th
 
 benchmark benchmark-lifted-async
   type: exitcode-stdio-1.0

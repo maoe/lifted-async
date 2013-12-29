@@ -13,7 +13,7 @@ import Control.Exception.Lifted
 
 import Test.Async.Common
 
-stateTestGroup :: Test
+stateTestGroup :: TestTree
 stateTestGroup = $(testGroupGenerator)
 
 case_async_waitCatch :: Assertion

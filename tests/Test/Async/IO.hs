@@ -9,11 +9,9 @@ import Prelude hiding (catch)
 import Control.Concurrent.Lifted
 import Control.Exception.Lifted
 
-import Test.Framework
-
 import Test.Async.Common
 
-ioTestGroup :: Test
+ioTestGroup :: TestTree
 ioTestGroup = $(testGroupGenerator)
 
 case_async_waitCatch :: Assertion

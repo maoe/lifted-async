@@ -11,9 +11,9 @@ import Data.Typeable
 import Control.Concurrent.Lifted (threadDelay)
 import Control.Exception.Lifted
 import Control.Monad.Trans.Control
-import Test.Framework as X
-import Test.Framework.Providers.HUnit as X
-import Test.Framework.TH as X
+import Test.Tasty as X
+import Test.Tasty.HUnit as X
+import Test.Tasty.TH as X
 import Test.HUnit as X hiding (Test)
 
 import Control.Concurrent.Async.Lifted as X
