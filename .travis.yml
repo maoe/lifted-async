@@ -7,11 +7,6 @@ env:
  - GHCVER=7.4.1
  - GHCVER=7.2.2
  - GHCVER=7.2.1
- - GHCVER=7.0.4
- - GHCVER=7.0.3
- - GHCVER=7.0.2
- - GHCVER=7.0.1
- - GHCVER=6.12.3
 
 before_install:
  - sudo add-apt-repository -y ppa:hvr/ghc
@@ -44,8 +39,3 @@ matrix:
    - env: GHCVER=head
    - env: GHCVER=7.2.2
    - env: GHCVER=7.2.1
-   - env: GHCVER=7.0.4
-   - env: GHCVER=7.0.3
-   - env: GHCVER=7.0.2
-   - env: GHCVER=7.0.1
-   - env: GHCVER=6.12.3
