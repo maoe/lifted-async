@@ -24,7 +24,7 @@ case_issue1 = do
     zombie ref = fix $ \loop -> do
       n <- readIORef ref
       when (n > 0) $ do
-        c_sleep 0
+        c_sleep 1
         writeIORef ref $! n - 1
         loop
 
