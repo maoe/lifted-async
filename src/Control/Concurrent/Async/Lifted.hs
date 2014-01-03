@@ -49,10 +49,11 @@ import GHC.IO (unsafeUnmask)
 import Prelude hiding (mapM)
 
 import Control.Concurrent.Async (Async)
-import Control.Exception.Lifted (SomeException, Exception, bracket)
+import Control.Exception.Lifted (SomeException, Exception)
 import Control.Monad.Base (MonadBase(..))
 import Control.Monad.Trans.Control
 import qualified Control.Concurrent.Async as A
+import qualified Control.Exception.Lifted as E
 
 -- | Generalized version of 'A.async'.
 async :: MonadBaseControl IO m => m a -> m (Async (StM m a))
@@ -146,7 +147,13 @@ withAsyncUsing
   -> m a
   -> (Async (StM m a) -> m b)
   -> m b
-withAsyncUsing fork action = bracket (fork action) cancel
+withAsyncUsing fork action inner = E.mask $ \restore -> do
+  a <- fork $ restore action
+  r <- restore (inner a) `E.catch` \e -> do
+    cancel a
+    E.throwIO (e :: SomeException)
+  cancel a
+  return r
 
 -- | Generalized version of 'A.wait'.
 wait :: MonadBaseControl IO m => Async (StM m a) -> m a
