@@ -47,6 +47,19 @@ test-suite test-lifted-async
     , tasty-hunit
     , tasty-th
 
+test-suite regression-tests
+  type: exitcode-stdio-1.0
+  hs-source-dirs: tests
+  main-is: RegressionTests.hs
+  ghc-options: -Wall -O -threaded
+  build-depends:
+      base
+    , async
+    , lifted-async
+    , mtl
+    , tasty-hunit
+    , tasty-th
+
 benchmark benchmark-lifted-async
   type: exitcode-stdio-1.0
   hs-source-dirs: benchmarks
