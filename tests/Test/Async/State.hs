@@ -6,7 +6,7 @@ import Control.Monad.State
 import Data.Maybe (isJust, isNothing)
 
 import Control.Concurrent.Lifted
-import Control.Exception.Lifted
+import Control.Exception.Lifted as E
 
 import Test.Async.Common
 
@@ -48,7 +48,7 @@ case_async_exwait =
   void $ flip runStateT value $ do
     a <- async $ modify (+1) >> throwIO TestException
     (wait a >> liftIO (assertFailure "An exception must be raised"))
-      `catch` \e -> do
+      `E.catch` \e -> do
         liftIO $ e @?= TestException
         s <- get
         liftIO $ s @?= value
