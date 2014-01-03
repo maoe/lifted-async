@@ -4,7 +4,6 @@ module Test.Async.IO
   ) where
 import Control.Monad (when)
 import Data.Maybe (isJust, isNothing)
-import Prelude hiding (catch)
 
 import Control.Concurrent.Lifted
 import Control.Exception.Lifted
@@ -66,15 +65,15 @@ case_async_cancel = sequence_ $ replicate 1000 run
       r <- waitCatch a
       case r of
         Left e -> fromException e @?= Just TestException
-        Right r -> r @?= value
+        Right r' -> r' @?= value
 
 case_async_poll :: Assertion
 case_async_poll = do
   a <- async (threadDelay 1000000)
   r <- poll a
   when (isJust r) $ assertFailure ""
-  r <- poll a   -- poll twice, just to check we don't deadlock
-  when (isJust r) $ assertFailure ""
+  r' <- poll a   -- poll twice, just to check we don't deadlock
+  when (isJust r') $ assertFailure ""
 
 case_async_poll2 :: Assertion
 case_async_poll2 = do
@@ -82,5 +81,5 @@ case_async_poll2 = do
   wait a
   r <- poll a
   when (isNothing r) $ assertFailure ""
-  r <- poll a   -- poll twice, just to check we don't deadlock
-  when (isNothing r) $ assertFailure ""
+  r' <- poll a   -- poll twice, just to check we don't deadlock
+  when (isNothing r') $ assertFailure ""

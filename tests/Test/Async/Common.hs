@@ -8,9 +8,7 @@ module Test.Async.Common
 
 import Data.Typeable
 
-import Control.Concurrent.Lifted (threadDelay)
 import Control.Exception.Lifted
-import Control.Monad.Trans.Control
 import Test.Tasty as X
 import Test.Tasty.HUnit as X
 import Test.Tasty.TH as X

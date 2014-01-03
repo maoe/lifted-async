@@ -2,7 +2,6 @@
 module Main where
 import Control.Exception (SomeException(..))
 
-import Control.DeepSeq (NFData(..))
 import Criterion.Main
 import qualified Control.Concurrent.Async as A
 import qualified Control.Concurrent.Async.Lifted as L
@@ -14,8 +13,8 @@ main = defaultMain
       , bench "lifted-async" $ whnfIO asyncWait_liftedAsync
       ]
   , bgroup "async-cancel-waitCatch"
-      [ bench "async" $ nfIO asyncCancelWaitCatch_async
-      , bench "lifted-async" $ nfIO asyncCancelWaitCatch_liftedAsync
+      [ bench "async" $ whnfIO asyncCancelWaitCatch_async
+      , bench "lifted-async" $ whnfIO asyncCancelWaitCatch_liftedAsync
       ]
   , bgroup "waitAny"
       [ bench "async" $ whnfIO waitAny_async
@@ -120,6 +119,3 @@ mapConcurrently_async =
 mapConcurrently_liftedAsync :: IO [Int]
 mapConcurrently_liftedAsync =
   L.mapConcurrently return [1..10]
-
-instance NFData SomeException where
-  rnf (SomeException !e) = ()

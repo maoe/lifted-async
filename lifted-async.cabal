@@ -64,7 +64,7 @@ benchmark benchmark-lifted-async
   type: exitcode-stdio-1.0
   hs-source-dirs: benchmarks
   main-is: Benchmarks.hs
-  ghc-options: -O
+  ghc-options: -Wall -O
   build-depends:
       base
     , async
@@ -76,7 +76,7 @@ benchmark benchmark-lifted-async-threaded
   type: exitcode-stdio-1.0
   hs-source-dirs: benchmarks
   main-is: Benchmarks.hs
-  ghc-options: -O -threaded
+  ghc-options: -Wall -O -threaded
   build-depends:
       base
     , async

@@ -2,11 +2,8 @@
 module Test.Async.State
   ( stateTestGroup
   ) where
-import Control.Monad (when)
 import Control.Monad.State
-import Control.Monad.Writer
 import Data.Maybe (isJust, isNothing)
-import Prelude hiding (catch)
 
 import Control.Concurrent.Lifted
 import Control.Exception.Lifted
@@ -91,8 +88,8 @@ case_async_cancel = sequence_ $ replicate 1000 run
         Left e -> do
           fromException e @?= Just TestException
           s @?= value
-        Right r -> do
-          r @?= value
+        Right r' -> do
+          r' @?= value
           s @?= value + 1
 
 case_async_poll :: Assertion
@@ -102,8 +99,8 @@ case_async_poll =
     r <- poll a
     when (isJust r) $
       liftIO $ assertFailure "The result must be nothing."
-    r <- poll a   -- poll twice, just to check we don't deadlock
-    when (isJust r) $
+    r' <- poll a   -- poll twice, just to check we don't deadlock
+    when (isJust r') $
       liftIO $ assertFailure "The result must be Nothing."
 
 case_async_poll2 :: Assertion
@@ -114,8 +111,8 @@ case_async_poll2 =
     r <- poll a
     when (isNothing r) $
       liftIO $ assertFailure "The result must not be Nothing."
-    r <- poll a   -- poll twice, just to check we don't deadlock
-    when (isNothing r) $
+    r' <- poll a   -- poll twice, just to check we don't deadlock
+    when (isNothing r') $
       liftIO $ assertFailure "The result must not be Nothing."
 
 case_withAsync_waitEither_ :: Assertion
