@@ -6,7 +6,7 @@ import Control.Monad (when)
 import Data.Maybe (isJust, isNothing)
 
 import Control.Concurrent.Lifted
-import Control.Exception.Lifted
+import Control.Exception.Lifted as E
 
 import Test.Async.Common
 
@@ -38,7 +38,7 @@ case_async_exwaitCatch = do
 case_async_exwait :: Assertion
 case_async_exwait = do
   a <- async (throwIO TestException)
-  (wait a >> assertFailure "") `catch` \e -> e @?= TestException
+  (wait a >> assertFailure "") `E.catch` \e -> e @?= TestException
 
 case_withAsync_waitCatch :: Assertion
 case_withAsync_waitCatch = do
