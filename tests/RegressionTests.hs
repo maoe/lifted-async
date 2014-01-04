@@ -1,6 +1,6 @@
 {-# LANGUAGE ForeignFunctionInterface #-}
 {-# LANGUAGE TemplateHaskell #-}
-import Control.Monad (when)
+import Control.Monad (when, void)
 import Data.Function (fix)
 import Data.IORef
 import Foreign.C.Types (CUInt(..))
@@ -24,7 +24,7 @@ case_issue1 = do
     zombie ref = fix $ \loop -> do
       n <- readIORef ref
       when (n > 0) $ do
-        c_sleep 1
+        void $ c_sleep 1
         writeIORef ref $! n - 1
         loop
 
