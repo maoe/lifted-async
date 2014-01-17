@@ -10,8 +10,8 @@ You can install this library using cabal:
 cabal install lifted-async
 ```
 
-Contacts
+Contact information
 ==========
 
 This library is written and maintained by Mitsutoshi Aoe <maoe@foldr.in>.
-[Contributions](https://github.com/maoe/lifted-async/pulls) and [bug reports](https://github.com/maoe/lifted-async/issues) are welcome :)
+[Pull requests](https://github.com/maoe/lifted-async/pulls) and [bug reports](https://github.com/maoe/lifted-async/issues) are welcome. A chat room is available on [Gitter](https://gitter.im/maoe/lifted-async).
