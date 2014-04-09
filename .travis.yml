@@ -58,7 +58,7 @@ before_install:
 
 install:
  - cabal-1.18 update
- - cabal-1.18 install --only-dependencies --enable-tests --enable-benchmarks -j
+ - cabal-1.18 install --only-dependencies --enable-tests -j
  - cabal-1.18 install hpc-coveralls -j --avoid-reinstalls
 
 # Here starts the actual work to be performed for the package under
@@ -66,7 +66,7 @@ install:
 # build to fail.
 script:
  # -v2 provides useful information for debugging
- - cabal-1.18 configure --enable-tests --enable-benchmarks --enable-library-coverage
+ - cabal-1.18 configure --enable-tests --enable-library-coverage
 
  # this builds all libraries and executables
  # (including tests/benchmarks)
