@@ -19,8 +19,7 @@ env:
 
 matrix:
   allow_failures:
-   - env: GHCVER=7.2.2
-   - env: GHCVER=7.2.1
+   - env: HPVER=2012.2.0.0
 
 # Note: the distinction between `before_install` and `install` is not
 #       important.
