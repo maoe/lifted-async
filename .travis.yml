@@ -90,6 +90,7 @@ script:
    fi)
 
 after_script:
+ - find . -type f -print
  - hpc-coveralls test-lifted-async
  - hpc-coveralls regression-tests
 
