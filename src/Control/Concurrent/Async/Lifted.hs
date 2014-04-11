@@ -40,7 +40,7 @@ module Control.Concurrent.Async.Lifted
 
     -- ** Convenient utilities
   , race, race_, concurrently, mapConcurrently
-  , A.Concurrently, A.runConcurrently
+  , A.Concurrently (..)
   ) where
 
 import Control.Monad ((>=>), liftM, void)
