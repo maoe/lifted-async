@@ -86,4 +86,10 @@ benchmark benchmark-lifted-async-threaded
 
 source-repository head
   type: git
+  branch: develop
+  location: https://github.com/maoe/lifted-async.git
+
+source-repository this
+  type: git
+  tag: v0.1.2
   location: https://github.com/maoe/lifted-async.git
