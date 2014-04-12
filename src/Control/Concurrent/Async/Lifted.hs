@@ -38,7 +38,7 @@ module Control.Concurrent.Async.Lifted
     -- ** Linking
   , link, link2
 
-    -- ** Convenient utilities
+    -- * Convenient utilities
   , race, race_, concurrently, mapConcurrently
   , A.Concurrently (..)
   ) where
