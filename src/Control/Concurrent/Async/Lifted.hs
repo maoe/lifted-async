@@ -320,6 +320,20 @@ mapConcurrently
 mapConcurrently f = runConcurrently . traverse (Concurrently . f)
 
 -- | Generalized version of 'A.Concurrently'.
+--
+-- A value of type @Concurrently b m a@ is an IO-based operation that can be
+-- composed with other 'Concurrently' values, using the 'Applicative' and
+-- 'Alternative' instances.
+--
+-- Calling 'runConcurrently' on a value of type @Concurrently b m a@ will
+-- execute the IO-based lifted operations it contains concurrently, before
+-- delivering the result of type 'a'.
+--
+-- For example
+-- > (page1, page2, page3) <- runConcurrently $ (,,)
+-- >   <$> Concurrently (getURL "url1")
+-- >   <*> Concurrently (getURL "url2")
+-- >   <*> Concurrently (getURL "url3")
 newtype Concurrently (b :: * -> *) m a = Concurrently { runConcurrently :: m a }
 
 -- NOTE: The phantom type variable @b :: * -> *@ in 'Concurrently' is needed to
