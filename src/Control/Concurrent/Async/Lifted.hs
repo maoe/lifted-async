@@ -319,22 +319,21 @@ mapConcurrently
   -> m (t b)
 mapConcurrently f = runConcurrently . traverse (Concurrently . f)
 
+-- | Generalized version of 'A.Concurrently'.
 newtype Concurrently (b :: * -> *) m a = Concurrently { runConcurrently :: m a }
 
-instance (base ~ IO, Functor m) => Functor (Concurrently base m) where
+instance (b ~ IO, Functor m) => Functor (Concurrently b m) where
   fmap f (Concurrently a) = Concurrently $ f <$> a
 
-instance (base ~ IO, MonadBaseControl base m) =>
-  Applicative (Concurrently base m) where
-    pure = Concurrently . pure
-    Concurrently fs <*> Concurrently as =
-      Concurrently $ uncurry ($) <$> concurrently fs as
+instance (b ~ IO, MonadBaseControl b m) => Applicative (Concurrently b m) where
+  pure = Concurrently . pure
+  Concurrently fs <*> Concurrently as =
+    Concurrently $ uncurry ($) <$> concurrently fs as
 
-instance (base ~ IO, MonadBaseControl base m) =>
-  Alternative (Concurrently base m) where
-    empty = Concurrently . liftBaseWith . const $ forever (threadDelay maxBound)
-    Concurrently as <|> Concurrently bs =
-      Concurrently $ either id id <$> race as bs
+instance (b ~ IO, MonadBaseControl b m) => Alternative (Concurrently b m) where
+  empty = Concurrently . liftBaseWith . const $ forever (threadDelay maxBound)
+  Concurrently as <|> Concurrently bs =
+    Concurrently $ either id id <$> race as bs
 
 sequenceEither :: MonadBaseControl IO m => Either e (StM m a) -> m (Either e a)
 sequenceEither = either (return . Left) (liftM Right . restoreM)
