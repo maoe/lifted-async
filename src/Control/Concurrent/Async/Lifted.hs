@@ -1,5 +1,7 @@
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE TypeFamilies #-}
 
 {- |
 Module      : Control.Concurrent.Async.Lifted
@@ -40,10 +42,12 @@ module Control.Concurrent.Async.Lifted
 
     -- ** Convenient utilities
   , race, race_, concurrently, mapConcurrently
-  , A.Concurrently, A.runConcurrently
+  , Concurrently, runConcurrently
   ) where
 
-import Control.Monad ((>=>), liftM, void)
+import Control.Applicative
+import Control.Concurrent (threadDelay)
+import Control.Monad ((>=>), forever, liftM, void)
 import Data.Traversable (Traversable(..))
 import GHC.IO (unsafeUnmask)
 import Prelude hiding (mapM)
@@ -313,10 +317,24 @@ mapConcurrently
   => (a -> m b)
   -> t a
   -> m (t b)
-mapConcurrently f t =
-  liftBaseWith (\runInIO ->
-    A.runConcurrently $ traverse (A.Concurrently . runInIO . f) t) >>=
-  mapM restoreM
+mapConcurrently f = runConcurrently . traverse (Concurrently . f)
+
+newtype Concurrently (b :: * -> *) m a = Concurrently { runConcurrently :: m a }
+
+instance (base ~ IO, Functor m) => Functor (Concurrently base m) where
+  fmap f (Concurrently a) = Concurrently $ f <$> a
+
+instance (base ~ IO, MonadBaseControl base m) =>
+  Applicative (Concurrently base m) where
+    pure = Concurrently . pure
+    Concurrently fs <*> Concurrently as =
+      Concurrently $ uncurry ($) <$> concurrently fs as
+
+instance (base ~ IO, MonadBaseControl base m) =>
+  Alternative (Concurrently base m) where
+    empty = Concurrently . liftBaseWith . const $ forever (threadDelay maxBound)
+    Concurrently as <|> Concurrently bs =
+      Concurrently $ either id id <$> race as bs
 
 sequenceEither :: MonadBaseControl IO m => Either e (StM m a) -> m (Either e a)
 sequenceEither = either (return . Left) (liftM Right . restoreM)
