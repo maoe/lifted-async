@@ -322,6 +322,11 @@ mapConcurrently f = runConcurrently . traverse (Concurrently . f)
 -- | Generalized version of 'A.Concurrently'.
 newtype Concurrently (b :: * -> *) m a = Concurrently { runConcurrently :: m a }
 
+-- NOTE: The phantom type variable @b :: * -> *@ in 'Concurrently' is needed to
+-- avoid @UndecidableInstances@ in the following instance declarations.
+-- See https://github.com/maoe/lifted-async/issues/4 for alternative
+-- implementaions.
+
 instance (b ~ IO, Functor m) => Functor (Concurrently b m) where
   fmap f (Concurrently a) = Concurrently $ f <$> a
 
