@@ -1,5 +1,7 @@
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE TypeFamilies #-}
 
 {- |
 Module      : Control.Concurrent.Async.Lifted
@@ -40,10 +42,12 @@ module Control.Concurrent.Async.Lifted
 
     -- * Convenient utilities
   , race, race_, concurrently, mapConcurrently
-  , A.Concurrently (..)
+  , Concurrently(..)
   ) where
 
-import Control.Monad ((>=>), liftM, void)
+import Control.Applicative
+import Control.Concurrent (threadDelay)
+import Control.Monad ((>=>), forever, liftM, void)
 import Data.Traversable (Traversable(..))
 import GHC.IO (unsafeUnmask)
 import Prelude hiding (mapM)
@@ -313,10 +317,42 @@ mapConcurrently
   => (a -> m b)
   -> t a
   -> m (t b)
-mapConcurrently f t =
-  liftBaseWith (\runInIO ->
-    A.runConcurrently $ traverse (A.Concurrently . runInIO . f) t) >>=
-  mapM restoreM
+mapConcurrently f = runConcurrently . traverse (Concurrently . f)
+
+-- | Generalized version of 'A.Concurrently'.
+--
+-- A value of type @Concurrently b m a@ is an IO-based operation that can be
+-- composed with other 'Concurrently' values, using the 'Applicative' and
+-- 'Alternative' instances.
+--
+-- Calling 'runConcurrently' on a value of type @Concurrently b m a@ will
+-- execute the IO-based lifted operations it contains concurrently, before
+-- delivering the result of type 'a'.
+--
+-- For example
+-- > (page1, page2, page3) <- runConcurrently $ (,,)
+-- >   <$> Concurrently (getURL "url1")
+-- >   <*> Concurrently (getURL "url2")
+-- >   <*> Concurrently (getURL "url3")
+newtype Concurrently (b :: * -> *) m a = Concurrently { runConcurrently :: m a }
+
+-- NOTE: The phantom type variable @b :: * -> *@ in 'Concurrently' is needed to
+-- avoid @UndecidableInstances@ in the following instance declarations.
+-- See https://github.com/maoe/lifted-async/issues/4 for alternative
+-- implementaions.
+
+instance (b ~ IO, Functor m) => Functor (Concurrently b m) where
+  fmap f (Concurrently a) = Concurrently $ f <$> a
+
+instance (b ~ IO, MonadBaseControl b m) => Applicative (Concurrently b m) where
+  pure = Concurrently . pure
+  Concurrently fs <*> Concurrently as =
+    Concurrently $ uncurry ($) <$> concurrently fs as
+
+instance (b ~ IO, MonadBaseControl b m) => Alternative (Concurrently b m) where
+  empty = Concurrently . liftBaseWith . const $ forever (threadDelay maxBound)
+  Concurrently as <|> Concurrently bs =
+    Concurrently $ either id id <$> race as bs
 
 sequenceEither :: MonadBaseControl IO m => Either e (StM m a) -> m (Either e a)
 sequenceEither = either (return . Left) (liftM Right . restoreM)
