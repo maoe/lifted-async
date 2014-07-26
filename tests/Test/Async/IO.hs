@@ -2,7 +2,7 @@
 module Test.Async.IO
   ( ioTestGroup
   ) where
-import Control.Monad (when)
+import Control.Monad (when, void)
 import Data.Maybe (isJust, isNothing)
 
 import Control.Concurrent.Lifted
@@ -78,7 +78,7 @@ case_async_poll = do
 case_async_poll2 :: Assertion
 case_async_poll2 = do
   a <- async (return value)
-  wait a
+  void $ wait a
   r <- poll a
   when (isNothing r) $ assertFailure ""
   r' <- poll a   -- poll twice, just to check we don't deadlock
