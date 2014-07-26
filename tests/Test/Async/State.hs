@@ -107,7 +107,7 @@ case_async_poll2 :: Assertion
 case_async_poll2 =
   void $ flip runStateT value $ do
     a <- async (return value)
-    wait a
+    void $ wait a
     r <- poll a
     when (isNothing r) $
       liftIO $ assertFailure "The result must not be Nothing."

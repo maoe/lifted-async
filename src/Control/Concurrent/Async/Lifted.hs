@@ -179,7 +179,7 @@ waitCatch
   -> m (Either SomeException a)
 waitCatch a = liftBase (A.waitCatch a) >>= sequenceEither
 
--- | Generalized version of 'A.catch'.
+-- | Generalized version of 'A.cancel'.
 cancel :: MonadBase IO m => Async (StM m a) -> m ()
 cancel = liftBase . A.cancel
 
