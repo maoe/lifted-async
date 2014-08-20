@@ -330,6 +330,7 @@ mapConcurrently f = runConcurrently . traverse (Concurrently . f)
 -- delivering the result of type 'a'.
 --
 -- For example
+--
 -- > (page1, page2, page3) <- runConcurrently $ (,,)
 -- >   <$> Concurrently (getURL "url1")
 -- >   <*> Concurrently (getURL "url2")
