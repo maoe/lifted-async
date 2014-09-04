@@ -2,6 +2,7 @@ lifted-async
 ==========
 [![Build Status](https://secure.travis-ci.org/maoe/lifted-async.png)](http://travis-ci.org/maoe/lifted-async)
 [![Coverage Status](https://coveralls.io/repos/maoe/lifted-async/badge.png)](https://coveralls.io/r/maoe/lifted-async)
+[![Gitter chat](https://badges.gitter.im/maoe/lifted-async.png)](https://gitter.im/maoe/lifted-async)
 
 This package provides IO operations from [async](http://hackage.haskell.org/package/async) package lifted to any instance of `MonadBase` or `MonadBaseControl` from [monad-control](http://hackage.haskell.org/package/monad-control) package.
 
