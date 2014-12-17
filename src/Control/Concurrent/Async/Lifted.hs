@@ -2,7 +2,6 @@
 {-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TypeFamilies #-}
-{-# LANGUAGE ScopedTypeVariables #-}
 
 {- |
 Module      : Control.Concurrent.Async.Lifted
