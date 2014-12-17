@@ -115,6 +115,13 @@ case_async_poll2 =
     when (isNothing r') $
       liftIO $ assertFailure "The result must not be Nothing."
 
+case_withAsync_waitEither :: Assertion
+case_withAsync_waitEither = do
+  (_, s) <- flip runStateT value $ do
+    withAsync (modify (+1)) $ \a ->
+      waitEither a a
+  liftIO $ s @?= value + 1
+
 case_withAsync_waitEither_ :: Assertion
 case_withAsync_waitEither_ = do
   ((), s) <- flip runStateT value $ do
