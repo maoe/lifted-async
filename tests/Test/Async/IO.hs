@@ -8,6 +8,7 @@ import Data.Maybe (isJust, isNothing)
 import Control.Concurrent.Lifted
 import Control.Exception.Lifted as E
 
+import Control.Concurrent.Async.Lifted.Safe
 import Test.Async.Common
 
 ioTestGroup :: TestTree

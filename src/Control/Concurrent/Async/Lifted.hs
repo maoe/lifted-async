@@ -18,18 +18,19 @@ module Control.Concurrent.Async.Lifted
   ( -- * Asynchronous actions
     A.Async
     -- ** Spawning
-  , async, asyncBound, asyncOn, asyncWithUnmask, asyncOnWithUnmask
+  , Safe.async, Safe.asyncBound, Safe.asyncOn
+  , Safe.asyncWithUnmask, Safe.asyncOnWithUnmask
 
     -- ** Spawning with automatic 'cancel'ation
-  , withAsync, withAsyncBound, withAsyncOn
-  , withAsyncWithUnmask, withAsyncOnWithUnmask
+  , Safe.withAsync, Safe.withAsyncBound, Safe.withAsyncOn
+  , Safe.withAsyncWithUnmask, Safe.withAsyncOnWithUnmask
 
     -- ** Quering 'Async's
-  , wait, poll, waitCatch, cancel, cancelWith
-  , A.asyncThreadId
+  , wait, poll, waitCatch, Safe.cancel, Safe.cancelWith
+  , Safe.asyncThreadId
 
     -- ** STM operations
-  , A.waitSTM, A.pollSTM, A.waitCatchSTM
+  , Safe.waitSTM, Safe.pollSTM, Safe.waitCatchSTM
 
     -- ** Waiting for multiple 'Async's
   , waitAny, waitAnyCatch, waitAnyCancel, waitAnyCatchCancel
@@ -38,7 +39,7 @@ module Control.Concurrent.Async.Lifted
   , waitBoth
 
     -- ** Linking
-  , link, link2
+  , Safe.link, Safe.link2
 
     -- * Convenient utilities
   , race, race_, concurrently, mapConcurrently
@@ -49,7 +50,6 @@ import Control.Applicative
 import Control.Concurrent (threadDelay)
 import Control.Monad ((>=>), forever, liftM)
 import Data.Traversable (Traversable(..))
-import GHC.IO (unsafeUnmask)
 import Prelude hiding (mapM)
 
 import Control.Concurrent.Async (Async)
@@ -59,105 +59,7 @@ import Control.Monad.Trans.Control
 import qualified Control.Concurrent.Async as A
 import qualified Control.Exception.Lifted as E
 
--- | Generalized version of 'A.async'.
-async :: MonadBaseControl IO m => m a -> m (Async (StM m a))
-async = asyncUsing A.async
-
--- | Generalized version of 'A.asyncBound'.
-asyncBound :: MonadBaseControl IO m => m a -> m (Async (StM m a))
-asyncBound = asyncUsing A.asyncBound
-
--- | Generalized version of 'A.asyncOn'.
-asyncOn :: MonadBaseControl IO m => Int -> m a -> m (Async (StM m a))
-asyncOn cpu = asyncUsing (A.asyncOn cpu)
-
--- | Generalized version of 'A.asyncWithUnmask'.
-asyncWithUnmask
-  :: MonadBaseControl IO m
-  => ((forall b. m b -> m b) -> m a)
-  -> m (Async (StM m a))
-asyncWithUnmask actionWith =
-  asyncUsing A.async (actionWith (liftBaseOp_ unsafeUnmask))
-
--- | Generalized version of 'A.asyncOnWithUnmask'.
-asyncOnWithUnmask
-  :: MonadBaseControl IO m
-  => Int
-  -> ((forall b. m b -> m b) -> m a)
-  -> m (Async (StM m a))
-asyncOnWithUnmask cpu actionWith =
-  asyncUsing (A.asyncOn cpu) (actionWith (liftBaseOp_ unsafeUnmask))
-
-asyncUsing
-  :: MonadBaseControl IO m
-  => (IO (StM m a) -> IO (Async (StM m a)))
-  -> m a
-  -> m (Async (StM m a))
-asyncUsing fork m =
-  liftBaseWith $ \runInIO -> fork (runInIO m)
-
--- | Generalized version of 'A.withAsync'.
-withAsync
-  :: MonadBaseControl IO m
-  => m a
-  -> (Async (StM m a) -> m b)
-  -> m b
-withAsync = withAsyncUsing async
-{-# INLINABLE withAsync #-}
-
--- | Generalized version of 'A.withAsyncBound'.
-withAsyncBound
-  :: MonadBaseControl IO m
-  => m a
-  -> (Async (StM m a) -> m b)
-  -> m b
-withAsyncBound = withAsyncUsing asyncBound
-{-# INLINABLE withAsyncBound #-}
-
--- | Generalized version of 'A.withAsyncOn'.
-withAsyncOn
-  :: MonadBaseControl IO m
-  => Int
-  -> m a
-  -> (Async (StM m a) -> m b)
-  -> m b
-withAsyncOn = withAsyncUsing . asyncOn
-{-# INLINABLE withAsyncOn #-}
-
--- | Generalized version of 'A.withAsyncWithUnmask'.
-withAsyncWithUnmask
-  :: MonadBaseControl IO m
-  => ((forall c. m c -> m c) -> m a)
-  -> (Async (StM m a) -> m b)
-  -> m b
-withAsyncWithUnmask actionWith =
-  withAsyncUsing async (actionWith (liftBaseOp_ unsafeUnmask))
-{-# INLINABLE withAsyncWithUnmask #-}
-
--- | Generalized version of 'A.withAsyncOnWithUnmask'.
-withAsyncOnWithUnmask
-  :: MonadBaseControl IO m
-  => Int
-  -> ((forall c. m c -> m c) -> m a)
-  -> (Async (StM m a) -> m b)
-  -> m b
-withAsyncOnWithUnmask cpu actionWith =
-  withAsyncUsing (asyncOn cpu) (actionWith (liftBaseOp_ unsafeUnmask))
-{-# INLINABLE withAsyncOnWithUnmask #-}
-
-withAsyncUsing
-  :: MonadBaseControl IO m
-  => (m a -> m (Async (StM m a)))
-  -> m a
-  -> (Async (StM m a) -> m b)
-  -> m b
-withAsyncUsing fork action inner = E.mask $ \restore -> do
-  a <- fork $ restore action
-  r <- restore (inner a) `E.catch` \e -> do
-    cancel a
-    E.throwIO (e :: SomeException)
-  cancel a
-  return r
+import qualified Control.Concurrent.Async.Lifted.Safe as Safe
 
 -- | Generalized version of 'A.wait'.
 wait :: MonadBaseControl IO m => Async (StM m a) -> m a
@@ -178,14 +80,6 @@ waitCatch
   => Async (StM m a)
   -> m (Either SomeException a)
 waitCatch a = liftBase (A.waitCatch a) >>= sequenceEither
-
--- | Generalized version of 'A.cancel'.
-cancel :: MonadBase IO m => Async a -> m ()
-cancel = liftBase . A.cancel
-
--- | Generalized version of 'A.cancelWith'.
-cancelWith :: (MonadBase IO m, Exception e) => Async a -> e -> m ()
-cancelWith = (liftBase .) . A.cancelWith
 
 -- | Generalized version of 'A.waitAny'.
 waitAny :: MonadBaseControl IO m => [Async (StM m a)] -> m (Async (StM m a), a)
@@ -279,35 +173,27 @@ waitBoth a b = do
   return (ra, rb)
 {-# INLINABLE waitBoth #-}
 
--- | Generalized version of 'A.link'.
-link :: MonadBase IO m => Async a -> m ()
-link = liftBase . A.link
-
--- | Generalized version of 'A.link2'.
-link2 :: MonadBase IO m => Async a -> Async a -> m ()
-link2 = (liftBase .) . A.link2
-
 -- | Generalized version of 'A.race'.
 race :: MonadBaseControl IO m => m a -> m b -> m (Either a b)
 race left right =
-  withAsync left $ \a ->
-  withAsync right $ \b ->
+  Safe.withAsync left $ \a ->
+  Safe.withAsync right $ \b ->
   waitEither a b
 {-# INLINABLE race #-}
 
 -- | Generalized version of 'A.race_'.
 race_ :: MonadBaseControl IO m => m a -> m b -> m ()
 race_ left right =
-  withAsync left $ \a ->
-  withAsync right $ \b ->
+  Safe.withAsync left $ \a ->
+  Safe.withAsync right $ \b ->
   waitEither_ a b
 {-# INLINABLE race_ #-}
 
 -- | Generalized version of 'A.concurrently'.
 concurrently :: MonadBaseControl IO m => m a -> m b -> m (a, b)
 concurrently left right =
-  withAsync left $ \a ->
-  withAsync right $ \b ->
+  Safe.withAsync left $ \a ->
+  Safe.withAsync right $ \b ->
   waitBoth a b
 {-# INLINABLE concurrently #-}
 

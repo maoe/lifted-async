@@ -23,6 +23,7 @@ description:
 library
   exposed-modules:
     Control.Concurrent.Async.Lifted
+    Control.Concurrent.Async.Lifted.Safe
   build-depends:
       base >= 4.3 && < 4.8
     , async >= 2.0.1
