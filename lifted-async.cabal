@@ -20,6 +20,11 @@ description:
   This package provides IO operations from @async@ package lifted to any
   instance of 'MonadBase' or 'MonadBaseControl'.
 
+flag monad-control-1
+  description: User moand-control == 1.*
+  default: True
+  manual: False
+
 library
   exposed-modules:
     Control.Concurrent.Async.Lifted
@@ -28,8 +33,13 @@ library
       base >= 4.3 && < 4.8
     , async >= 2.0.1
     , lifted-base >= 0.2
-    , monad-control >= 0.3.1
     , transformers-base >= 0.4
+  if flag(monad-control-1)
+    build-depends:
+      monad-control == 1.0.*
+  else
+    build-depends:
+      monad-control == 0.*
   ghc-options: -Wall
   hs-source-dirs: src
 

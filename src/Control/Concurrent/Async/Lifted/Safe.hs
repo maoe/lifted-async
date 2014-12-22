@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE RankNTypes #-}
@@ -25,26 +26,32 @@ module Control.Concurrent.Async.Lifted.Safe
   , withAsyncWithUnmask, withAsyncOnWithUnmask
 
     -- ** Quering 'Async's
-  , wait, poll, waitCatch, cancel, cancelWith
+#if MIN_VERSION_monad_control(1, 0, 0)
+  , wait, poll, waitCatch
+#endif
+  , cancel, cancelWith
   , A.asyncThreadId
 
     -- ** STM operations
   , A.waitSTM, A.pollSTM, A.waitCatchSTM
 
+#if MIN_VERSION_monad_control(1, 0, 0)
     -- ** Waiting for multiple 'Async's
   , waitAny, waitAnyCatch, waitAnyCancel, waitAnyCatchCancel
   , waitEither, waitEitherCatch, waitEitherCancel, waitEitherCatchCancel
   , waitEither_
   , waitBoth
+#endif
 
     -- ** Linking
   , link, link2
 
+#if MIN_VERSION_monad_control(1, 0, 0)
     -- * Convenient utilities
   , race, race_, concurrently
+#endif
   ) where
 
-import Control.Monad ((>=>), liftM)
 import GHC.IO (unsafeUnmask)
 import Prelude hiding (mapM)
 
@@ -54,7 +61,12 @@ import Control.Monad.Base (MonadBase(..))
 import Control.Monad.Trans.Control hiding (restoreM)
 import qualified Control.Concurrent.Async as A
 import qualified Control.Exception.Lifted as E
+
+#if MIN_VERSION_monad_control(1, 0, 0)
+import Control.Monad ((>=>), liftM)
+
 import qualified Control.Monad.Trans.Control as MonadControl
+#endif
 
 -- | Generalized version of 'A.async'.
 async :: MonadBaseControl IO m => m a -> m (Async (StM m a))
@@ -156,6 +168,7 @@ withAsyncUsing fork action inner = E.mask $ \restore -> do
   cancel a
   return r
 
+#if MIN_VERSION_monad_control(1, 0, 0)
 -- | Generalized version of 'A.wait'.
 wait :: (MonadBaseControl IO m, StM m a ~ a) => Async (StM m a) -> m a
 wait = liftBase . A.wait >=> restoreM
@@ -175,6 +188,7 @@ waitCatch
   => Async (StM m a)
   -> m (Either SomeException a)
 waitCatch a = liftBase (A.waitCatch a) >>= sequenceEither
+#endif
 
 -- | Generalized version of 'A.cancel'.
 cancel :: MonadBase IO m => Async a -> m ()
@@ -184,6 +198,7 @@ cancel = liftBase . A.cancel
 cancelWith :: (MonadBase IO m, Exception e) => Async a -> e -> m ()
 cancelWith = (liftBase .) . A.cancelWith
 
+#if MIN_VERSION_monad_control(1, 0, 0)
 -- | Generalized version of 'A.waitAny'.
 waitAny
   :: (MonadBaseControl IO m, StM m a ~ a)
@@ -283,6 +298,7 @@ waitBoth a b = do
   rb <- restoreM sb
   return (ra, rb)
 {-# INLINABLE waitBoth #-}
+#endif
 
 -- | Generalized version of 'A.link'.
 link :: MonadBase IO m => Async a -> m ()
@@ -292,6 +308,7 @@ link = liftBase . A.link
 link2 :: MonadBase IO m => Async a -> Async a -> m ()
 link2 = (liftBase .) . A.link2
 
+#if MIN_VERSION_monad_control(1, 0, 0)
 -- | Generalized version of 'A.race'.
 race
   :: (MonadBaseControl IO m, StM m a ~ a, StM m b ~ b)
@@ -384,3 +401,4 @@ sequenceEither = either (return . Left) (liftM Right . restoreM)
 -- 'Control.Concurrent.Async.Lifted.Unsafe' carefully instead.
 restoreM :: (MonadBaseControl b m, StM m a ~ a) => StM m a -> m a
 restoreM = MonadControl.restoreM
+#endif
