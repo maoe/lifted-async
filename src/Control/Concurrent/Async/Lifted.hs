@@ -98,8 +98,14 @@ waitAnyCatch as = do
   return (a, r)
 
 -- | Generalized version of 'A.waitAnyCancel'.
-waitAnyCancel :: MonadBase IO m => [Async a] -> m (Async a, a)
-waitAnyCancel = liftBase . A.waitAnyCancel
+waitAnyCancel
+  :: MonadBaseControl IO m
+  => [Async (StM m a)]
+  -> m (Async (StM m a), a)
+waitAnyCancel as = do
+  (a, s) <- liftBase $ A.waitAnyCancel as
+  r <- restoreM s
+  return (a, r)
 
 -- | Generalized version of 'A.waitAnyCatchCancel'.
 waitAnyCatchCancel
