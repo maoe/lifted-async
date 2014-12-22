@@ -28,12 +28,7 @@ flag monad-control-1
 library
   exposed-modules:
     Control.Concurrent.Async.Lifted
-  if flag(monad-control-1)
-    exposed-modules:
-      Control.Concurrent.Async.Lifted.Safe
-  else
-    other-modules:
-      Control.Concurrent.Async.Lifted.Safe
+    Control.Concurrent.Async.Lifted.Safe
   build-depends:
       base >= 4.3 && < 4.8
     , async >= 2.0.1
