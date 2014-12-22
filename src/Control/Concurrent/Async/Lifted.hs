@@ -53,11 +53,10 @@ import Data.Traversable (Traversable(..))
 import Prelude hiding (mapM)
 
 import Control.Concurrent.Async (Async)
-import Control.Exception.Lifted (SomeException, Exception)
+import Control.Exception.Lifted (SomeException)
 import Control.Monad.Base (MonadBase(..))
 import Control.Monad.Trans.Control
 import qualified Control.Concurrent.Async as A
-import qualified Control.Exception.Lifted as E
 
 import qualified Control.Concurrent.Async.Lifted.Safe as Safe
 
