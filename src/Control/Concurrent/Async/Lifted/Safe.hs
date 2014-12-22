@@ -19,8 +19,13 @@ The safety here means you can't accidentally overwrite monadic effects because
 the monad stack doesn't have state in the first place. If your monad stack is
 stateful, use @Control.Concurrent.Async.Lifted@ with special care.
 
+#if MIN_VERSION_monad_control(1, 0, 0)
 Caveat: Currently due to an implementation restriction, there's no
 `A.Concurrently` type and accompanying functions.
+#else
+Caveat: This module becomes useful when used with @monad-control >= 1.0.0@.
+If you have older @monad-control@, use @Control.Concurrent.Async.Lifted@.
+#endif
 -}
 
 module Control.Concurrent.Async.Lifted.Safe
