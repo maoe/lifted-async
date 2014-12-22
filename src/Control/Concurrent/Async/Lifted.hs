@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE RankNTypes #-}
@@ -12,6 +13,14 @@ Stability   : experimental
 
 This is a wrapped version of "Control.Concurrent.Async" with types generalized
 from 'IO' to all monads in either 'MonadBase' or 'MonadBaseControl'.
+
+All the functions restore the monadic effects in the forked computation
+unless specified otherwise.
+
+#if MIN_VERSION_monad_control(1, 0, 0)
+If your monad stack satisfies @'StM' m a ~ a@ (e.g. the reader monad), consider
+using @Control.Concurrent.Async.Lifted.Safe@ module instead.
+#endif
 -}
 
 module Control.Concurrent.Async.Lifted
@@ -158,6 +167,9 @@ waitEitherCatchCancel a b =
   either (liftM Left . sequenceEither) (liftM Right . sequenceEither)
 
 -- | Generalized version of 'A.waitEither_'.
+--
+-- NOTE: This function discards the monadic effects besides IO in the forked
+-- computation.
 waitEither_
   :: MonadBaseControl IO m
   => Async a
@@ -187,6 +199,9 @@ race left right =
 {-# INLINABLE race #-}
 
 -- | Generalized version of 'A.race_'.
+--
+-- NOTE: This function discards the monadic effects besides IO in the forked
+-- computation.
 race_ :: MonadBaseControl IO m => m a -> m b -> m ()
 race_ left right =
   Safe.withAsync left $ \a ->

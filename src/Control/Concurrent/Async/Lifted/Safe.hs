@@ -13,6 +13,14 @@ Stability   : experimental
 
 This is a wrapped version of "Control.Concurrent.Async" with types generalized
 from 'IO' to all monads in either 'MonadBase' or 'MonadBaseControl'.
+
+This module assumes your monad stack to satisfy @'StM' m a ~ a@ for safety.
+The safety here means you can't accidentally overwrite monadic effects because
+the monad stack doesn't have state in the first place. If your monad stack is
+stateful, use @Control.Concurrent.Async.Lifted@ with special care.
+
+Caveat: Currently due to an implementation restriction, there's no
+`A.Concurrently` type and accompanying functions.
 -}
 
 module Control.Concurrent.Async.Lifted.Safe
