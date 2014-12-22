@@ -128,7 +128,7 @@ case_withAsync_waitEither_ = do
   ((), s) <- flip runStateT value $ do
     withAsync (modify (+1)) $ \a ->
       waitEither_ a a
-  liftIO $ s @?= value + 1
+  liftIO $ s @?= value
 
 case_withAsync_waitBoth1 :: Assertion
 case_withAsync_waitBoth1 = do
