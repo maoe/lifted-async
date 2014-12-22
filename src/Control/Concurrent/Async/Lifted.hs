@@ -35,7 +35,7 @@ module Control.Concurrent.Async.Lifted
   , Safe.withAsyncWithUnmask, Safe.withAsyncOnWithUnmask
 
     -- ** Quering 'Async's
-  , wait, poll, waitCatch, Safe.cancel, Safe.cancelWith
+  , wait, poll, waitCatch, cancel, cancelWith
   , Safe.asyncThreadId
 
     -- ** STM operations
@@ -62,7 +62,7 @@ import Data.Traversable (Traversable(..))
 import Prelude hiding (mapM)
 
 import Control.Concurrent.Async (Async)
-import Control.Exception.Lifted (SomeException)
+import Control.Exception.Lifted (SomeException, Exception)
 import Control.Monad.Base (MonadBase(..))
 import Control.Monad.Trans.Control
 import qualified Control.Concurrent.Async as A
@@ -81,6 +81,20 @@ poll
 poll a =
   liftBase (A.poll a) >>=
   maybe (return Nothing) (liftM Just . sequenceEither)
+
+-- | Generalized version of 'A.cancel'.
+--
+-- NOTE: This function discards the monadic effects besides IO in the forked
+-- computation.
+cancel :: MonadBase IO m => Async a -> m ()
+cancel = Safe.cancel
+
+-- | Generalized version of 'A.cancelWith'.
+--
+-- NOTE: This function discards the monadic effects besides IO in the forked
+-- computation.
+cancelWith :: (MonadBase IO m, Exception e) => Async a -> e -> m ()
+cancelWith = Safe.cancelWith
 
 -- | Generalized version of 'A.waitCatch'.
 waitCatch
