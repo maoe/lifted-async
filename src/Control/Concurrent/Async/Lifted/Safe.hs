@@ -183,13 +183,13 @@ withAsyncUsing fork action inner = E.mask $ \restore -> do
 
 #if MIN_VERSION_monad_control(1, 0, 0)
 -- | Generalized version of 'A.wait'.
-wait :: (MonadBaseControl IO m, StM m a ~ a) => Async (StM m a) -> m a
+wait :: (MonadBaseControl IO m, StM m a ~ a) => Async a -> m a
 wait = liftBase . A.wait >=> restoreM
 
 -- | Generalized version of 'A.poll'.
 poll
   :: (MonadBaseControl IO m, StM m a ~ a)
-  => Async (StM m a)
+  => Async a
   -> m (Maybe (Either SomeException a))
 poll a =
   liftBase (A.poll a) >>=
@@ -198,7 +198,7 @@ poll a =
 -- | Generalized version of 'A.waitCatch'.
 waitCatch
   :: (MonadBaseControl IO m, StM m a ~ a)
-  => Async (StM m a)
+  => Async a
   -> m (Either SomeException a)
 waitCatch a = liftBase (A.waitCatch a) >>= sequenceEither
 #endif
@@ -215,7 +215,7 @@ cancelWith = (liftBase .) . A.cancelWith
 -- | Generalized version of 'A.waitAny'.
 waitAny
   :: (MonadBaseControl IO m, StM m a ~ a)
-  => [Async (StM m a)] -> m (Async (StM m a), a)
+  => [Async a] -> m (Async a, a)
 waitAny as = do
   (a, s) <- liftBase $ A.waitAny as
   r <- restoreM s
@@ -224,8 +224,8 @@ waitAny as = do
 -- | Generalized version of 'A.waitAnyCatch'.
 waitAnyCatch
   :: (MonadBaseControl IO m, StM m a ~ a)
-  => [Async (StM m a)]
-  -> m (Async (StM m a), Either SomeException a)
+  => [Async a]
+  -> m (Async a, Either SomeException a)
 waitAnyCatch as = do
   (a, s) <- liftBase $ A.waitAnyCatch as
   r <- sequenceEither s
@@ -234,8 +234,8 @@ waitAnyCatch as = do
 -- | Generalized version of 'A.waitAnyCancel'.
 waitAnyCancel
   :: (MonadBaseControl IO m, StM m a ~ a)
-  => [Async (StM m a)]
-  -> m (Async (StM m a), a)
+  => [Async a]
+  -> m (Async a, a)
 waitAnyCancel as = do
   (a, s) <- liftBase $ A.waitAnyCancel as
   r <- restoreM s
@@ -244,8 +244,8 @@ waitAnyCancel as = do
 -- | Generalized version of 'A.waitAnyCatchCancel'.
 waitAnyCatchCancel
   :: (MonadBaseControl IO m, StM m a ~ a)
-  => [Async (StM m a)]
-  -> m (Async (StM m a), Either SomeException a)
+  => [Async a]
+  -> m (Async a, Either SomeException a)
 waitAnyCatchCancel as = do
   (a, s) <- liftBase $ A.waitAnyCatchCancel as
   r <- sequenceEither s
@@ -254,8 +254,8 @@ waitAnyCatchCancel as = do
 -- | Generalized version of 'A.waitEither'.
 waitEither
   :: (MonadBaseControl IO m, StM m a ~ a, StM m b ~ b)
-  => Async (StM m a)
-  -> Async (StM m b)
+  => Async a
+  -> Async b
   -> m (Either a b)
 waitEither a b =
   liftBase (A.waitEither a b) >>=
@@ -264,8 +264,8 @@ waitEither a b =
 -- | Generalized version of 'A.waitEitherCatch'.
 waitEitherCatch
   :: (MonadBaseControl IO m, StM m a ~ a, StM m b ~ b)
-  => Async (StM m a)
-  -> Async (StM m b)
+  => Async a
+  -> Async b
   -> m (Either (Either SomeException a) (Either SomeException b))
 waitEitherCatch a b =
   liftBase (A.waitEitherCatch a b) >>=
@@ -274,8 +274,8 @@ waitEitherCatch a b =
 -- | Generalized version of 'A.waitEitherCancel'.
 waitEitherCancel
   :: (MonadBaseControl IO m, StM m a ~ a, StM m b ~ b)
-  => Async (StM m a)
-  -> Async (StM m b)
+  => Async a
+  -> Async b
   -> m (Either a b)
 waitEitherCancel a b =
   liftBase (A.waitEitherCancel a b) >>=
@@ -284,8 +284,8 @@ waitEitherCancel a b =
 -- | Generalized version of 'A.waitEitherCatchCancel'.
 waitEitherCatchCancel
   :: (MonadBaseControl IO m, StM m a ~ a, StM m b ~ b)
-  => Async (StM m a)
-  -> Async (StM m b)
+  => Async a
+  -> Async b
   -> m (Either (Either SomeException a) (Either SomeException b))
 waitEitherCatchCancel a b =
   liftBase (A.waitEitherCatch a b) >>=
@@ -302,8 +302,8 @@ waitEither_ a b = liftBase (A.waitEither_ a b)
 -- | Generalized version of 'A.waitBoth'.
 waitBoth
   :: (MonadBaseControl IO m, StM m a ~ a, StM m b ~ b)
-  => Async (StM m a)
-  -> Async (StM m b)
+  => Async a
+  -> Async b
   -> m (a, b)
 waitBoth a b = do
   (sa, sb) <- liftBase (A.waitBoth a b)
