@@ -1,8 +1,13 @@
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE GADTs #-}
 {-# LANGUAGE KindSignatures #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeOperators #-}
 
 {- |
 Module      : Control.Concurrent.Async.Lifted.Safe
@@ -58,15 +63,23 @@ module Control.Concurrent.Async.Lifted.Safe
   , Unsafe.link, Unsafe.link2
 
     -- * Convenient utilities
-  , race, race_, concurrently
+  , race, race_, concurrently, mapConcurrently
+  , Concurrently(..), Pure
 #endif
   ) where
 
 #if MIN_VERSION_monad_control(1, 0, 0)
+import Control.Applicative
+import Control.Concurrent (threadDelay)
+import Control.Monad
+import Data.Traversable
+
 import Control.Concurrent.Async (Async)
 import Control.Exception.Lifted (SomeException, Exception)
 import Control.Monad.Base (MonadBase(..))
 import Control.Monad.Trans.Control hiding (restoreM)
+import Data.Constraint ((\\), (:-))
+import Data.Constraint.Forall (Forall, inst)
 import qualified Control.Concurrent.Async as A
 
 import qualified Control.Concurrent.Async.Lifted as Unsafe
@@ -252,12 +265,12 @@ concurrently
 concurrently = Unsafe.concurrently
 
 -- | Generalized version of 'A.mapConcurrently'.
--- mapConcurrently
---   :: (Traversable t, MonadBaseControl IO m, StM m b ~ b)
---   => (a -> m b)
---   -> t a
---   -> m (t b)
--- mapConcurrently f = runConcurrently . traverse (Concurrently . f)
+mapConcurrently
+  :: (Traversable t, MonadBaseControl IO m, Forall (Pure m))
+  => (a -> m b)
+  -> t a
+  -> m (t b)
+mapConcurrently f = runConcurrently . traverse (Concurrently . f)
 
 -- | Generalized version of 'A.Concurrently'.
 --
@@ -275,27 +288,39 @@ concurrently = Unsafe.concurrently
 -- >   <$> Concurrently (getURL "url1")
 -- >   <*> Concurrently (getURL "url2")
 -- >   <*> Concurrently (getURL "url3")
--- newtype Concurrently (b :: * -> *) m a = Concurrently { runConcurrently :: m a }
---
+data Concurrently (base :: * -> *) m a where
+  Concurrently
+    :: Forall (Pure m)
+    => { runConcurrently :: m a } -> Concurrently base m a
+
 -- NOTE: The phantom type variable @b :: * -> *@ in 'Concurrently' is needed to
 -- avoid @UndecidableInstances@ in the following instance declarations.
 -- See https://github.com/maoe/lifted-async/issues/4 for alternative
 -- implementaions.
---
--- instance (b ~ IO, Functor m) => Functor (Concurrently b m) where
---   fmap f (Concurrently a) = Concurrently $ f <$> a
---
--- instance (b ~ IO, MonadBaseControl b m) => Applicative (Concurrently b m) where
---   pure = Concurrently . pure
---   Concurrently fs <*> Concurrently as = undefined
---     -- Concurrently $ uncurry ($) <$> concurrently fs as
---
--- instance (b ~ IO, MonadBaseControl b m) => Alternative (Concurrently b m) where
---   empty = Concurrently . liftBaseWith . const $ forever (threadDelay maxBound)
---   Concurrently as <|> Concurrently bs = undefined
---     -- Concurrently $ either id id <$> race as bs
---
--- instance Monad m => Monad (Concurrently b m) where
---   return = Concurrently . return
---   Concurrently a >>= f = Concurrently $ a >>= runConcurrently . f
+
+class StM m a ~ a => Pure m a
+instance StM m a ~ a => Pure m a
+
+instance (base ~ IO, Functor m) => Functor (Concurrently base m) where
+  fmap f (Concurrently a) = Concurrently $ f <$> a
+
+instance (base ~ IO, MonadBaseControl base m, Forall (Pure m)) =>
+  Applicative (Concurrently base m) where
+    pure = Concurrently . pure
+    Concurrently (fs :: m (a -> b)) <*> Concurrently as =
+      Concurrently (uncurry ($) <$> concurrently fs as)
+        \\ (inst :: Forall (Pure m) :- Pure m a)
+        \\ (inst :: Forall (Pure m) :- Pure m (a -> b))
+
+instance (base ~ IO, MonadBaseControl base m, Forall (Pure m)) =>
+  Alternative (Concurrently base m) where
+    empty = Concurrently . liftBaseWith . const $ forever (threadDelay maxBound)
+    Concurrently (as :: m a) <|> Concurrently bs =
+      Concurrently (either id id <$> race as bs)
+        \\ (inst :: Forall (Pure m) :- Pure m a)
+        \\ (inst :: Forall (Pure m) :- Pure m b)
+
+instance (Monad m, Forall (Pure m)) => Monad (Concurrently base m) where
+  return = Concurrently . return
+  Concurrently a >>= f = Concurrently $ a >>= runConcurrently . f
 #endif
