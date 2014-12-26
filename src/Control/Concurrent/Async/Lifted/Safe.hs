@@ -23,13 +23,15 @@ stateful, use @Control.Concurrent.Async.Lifted@ with special care.
 Caveat: Currently due to an implementation restriction, there's no
 `A.Concurrently` type and accompanying functions.
 #else
-Caveat: This module becomes useful when used with @monad-control >= 1.0.0@.
+Caveat: This module is available only if built with @monad-control >= 1.0.0@.
 If you have older @monad-control@, use @Control.Concurrent.Async.Lifted@.
 #endif
 -}
 
 module Control.Concurrent.Async.Lifted.Safe
-  ( -- * Asynchronous actions
+  (
+#if MIN_VERSION_monad_control(1, 0, 0)
+    -- * Asynchronous actions
     A.Async
     -- ** Spawning
   , async, asyncBound, asyncOn, asyncWithUnmask, asyncOnWithUnmask
@@ -57,8 +59,10 @@ module Control.Concurrent.Async.Lifted.Safe
 
     -- * Convenient utilities
   , race, race_, concurrently
+#endif
   ) where
 
+#if MIN_VERSION_monad_control(1, 0, 0)
 import Control.Concurrent.Async (Async)
 import Control.Exception.Lifted (SomeException, Exception)
 import Control.Monad.Base (MonadBase(..))
@@ -294,3 +298,4 @@ concurrently = Unsafe.concurrently
 -- instance Monad m => Monad (Concurrently b m) where
 --   return = Concurrently . return
 --   Concurrently a >>= f = Concurrently $ a >>= runConcurrently . f
+#endif
