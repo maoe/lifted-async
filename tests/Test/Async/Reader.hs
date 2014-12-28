@@ -1,101 +1,96 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE TemplateHaskell #-}
-module Test.Async.State
-  ( stateTestGroup
+module Test.Async.Reader
+  ( readerTestGroup
   ) where
-import Control.Monad.State
+import Control.Monad.Reader
 import Data.Maybe (isJust, isNothing)
 
 import Control.Concurrent.Lifted
 import Control.Exception.Lifted as E
 
+#if MIN_VERSION_monad_control(1, 0, 0)
+import Control.Concurrent.Async.Lifted.Safe
+#else
 import Control.Concurrent.Async.Lifted
+#endif
 import Test.Async.Common
 
-stateTestGroup :: TestTree
-stateTestGroup = $(testGroupGenerator)
+readerTestGroup :: TestTree
+readerTestGroup = $(testGroupGenerator)
 
 case_async_waitCatch :: Assertion
 case_async_waitCatch = do
-  (r, s) <- flip runStateT value $ do
-    a <- async $ modify (+1) >> return value
+  r <- flip runReaderT value $ do
+    a <- async $ return value
     waitCatch a
   case r of
     Left _  -> assertFailure "An exception must not be raised."
     Right e -> do
       e @?= value
-      s @?= value + 1
 
 case_async_wait :: Assertion
 case_async_wait = do
-  (r, s) <- flip runStateT value $ do
-    a <- async $ modify (+1) >> return value
+  r <- flip runReaderT value $ do
+    a <- async $ return value
     wait a
   r @?= value
-  s @?= value + 1
 
 case_async_exwaitCatch :: Assertion
 case_async_exwaitCatch = do
-  (r, s) <- flip runStateT value $ do
-    a <- async $ modify (+1) >> throwIO TestException
+  r <- flip runReaderT value $ do
+    a <- async $ throwIO TestException
     waitCatch a
   case r of
-    Left e  -> do
+    Left e ->
       fromException e @?= Just TestException
-      s @?= value
     Right _ -> assertFailure "An exception must be raised."
 
 case_async_exwait :: Assertion
 case_async_exwait =
-  void $ flip runStateT value $ do
-    a <- async $ modify (+1) >> throwIO TestException
+  void $ flip runReaderT value $ do
+    a <- async $ throwIO TestException
     (wait a >> liftIO (assertFailure "An exception must be raised"))
-      `E.catch` \e -> do
+      `E.catch` \e ->
         liftIO $ e @?= TestException
-        s <- get
-        liftIO $ s @?= value
 
 case_withAsync_waitCatch :: Assertion
 case_withAsync_waitCatch =
-  void $ flip runStateT value $ do
-    withAsync (modify (+1) >> return value) $ \a -> do
+  void $ flip runReaderT value $ do
+    withAsync (return value) $ \a -> do
       r <- waitCatch a
       case r of
         Left _  -> liftIO $ assertFailure "An exception must not be raised."
         Right e -> do
           liftIO $ e @?= value
-          s <- get
-          liftIO $ s @?= value + 1
 
 case_withAsync_wait2 :: Assertion
 case_withAsync_wait2 = do
-  (r, s) <- flip runStateT value $ do
-    a <- withAsync (modify (+1) >> threadDelay 1000000) $ return
+  r <- flip runReaderT value $ do
+    a <- withAsync (threadDelay 1000000) $ return
     waitCatch a
   case r of
     Left e  -> do
       fromException e @?= Just ThreadKilled
-      s @?= value
     Right _ -> assertFailure "An exception must be raised."
 
 case_async_cancel :: Assertion
 case_async_cancel = sequence_ $ replicate 1000 run
   where
     run = do
-      (r, s) <- flip runStateT value $ do
-        a <- async $ modify (+1) >> return value
+      r <- flip runReaderT value $ do
+        a <- async $ return value
         cancelWith a TestException
         waitCatch a
       case r of
-        Left e -> do
+        Left e ->
           fromException e @?= Just TestException
-          s @?= value
-        Right r' -> do
+        Right r' ->
           r' @?= value
-          s @?= value + 1
 
 case_async_poll :: Assertion
 case_async_poll =
-  void $ flip runStateT value $ do
+  void $ flip runReaderT value $ do
     a <- async (threadDelay 1000000)
     r <- poll a
     when (isJust r) $
@@ -106,7 +101,7 @@ case_async_poll =
 
 case_async_poll2 :: Assertion
 case_async_poll2 =
-  void $ flip runStateT value $ do
+  void $ flip runReaderT value $ do
     a <- async (return value)
     void $ wait a
     r <- poll a
@@ -116,39 +111,9 @@ case_async_poll2 =
     when (isNothing r') $
       liftIO $ assertFailure "The result must not be Nothing."
 
-case_withAsync_waitEither :: Assertion
-case_withAsync_waitEither = do
-  (_, s) <- flip runStateT value $ do
-    withAsync (modify (+1)) $ \a ->
-      waitEither a a
-  liftIO $ s @?= value + 1
-
-case_withAsync_waitEither_ :: Assertion
-case_withAsync_waitEither_ = do
-  ((), s) <- flip runStateT value $ do
-    withAsync (modify (+1)) $ \a ->
-      waitEither_ a a
-  liftIO $ s @?= value
-
-case_withAsync_waitBoth1 :: Assertion
-case_withAsync_waitBoth1 = do
-  (_, s) <- flip runStateT value $ do
-    withAsync (return value) $ \a ->
-      withAsync (modify (+1)) $ \b ->
-        waitBoth a b
-  liftIO $ s @?= value + 1
-
-case_withAsync_waitBoth2 :: Assertion
-case_withAsync_waitBoth2 = do
-  (_, s) <- flip runStateT value $ do
-    withAsync (modify (+1)) $ \a ->
-      withAsync (return value) $ \b ->
-        waitBoth a b
-  liftIO $ s @?= value
-
 case_link :: Assertion
 case_link = do
-  r <- try $ flip runStateT value $ do
+  r <- try $ flip runReaderT value $ do
     a <- async $ threadDelay 1000000 >> return value
     link a
     cancelWith a TestException

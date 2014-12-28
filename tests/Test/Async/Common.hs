@@ -13,8 +13,6 @@ import Test.Tasty as X
 import Test.Tasty.HUnit as X
 import Test.Tasty.TH as X
 
-import Control.Concurrent.Async.Lifted as X
-
 value :: Int
 value = 42
 

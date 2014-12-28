@@ -1,5 +1,5 @@
 name:                lifted-async
-version:             0.2.0.2
+version:             0.3.0
 synopsis:            Run lifted IO operations asynchronously and wait for their results
 homepage:            https://github.com/maoe/lifted-async
 bug-reports:         https://github.com/maoe/lifted-async/issues
@@ -20,15 +20,32 @@ description:
   This package provides IO operations from @async@ package lifted to any
   instance of 'MonadBase' or 'MonadBaseControl'.
 
+flag monad-control-1
+  description: User moand-control == 1.*
+  default: True
+  manual: False
+
 library
   exposed-modules:
     Control.Concurrent.Async.Lifted
+    Control.Concurrent.Async.Lifted.Safe
   build-depends:
-      base >= 4.3 && < 4.8
-    , async >= 2.0.1
-    , lifted-base >= 0.2
-    , monad-control >= 0.3.1
-    , transformers-base >= 0.4
+      base >= 4.3 && < 4.9
+    , async >= 2.0.1 && < 2.1
+    , lifted-base >= 0.2 && < 0.3
+    , transformers-base >= 0.4 && < 0.5
+  if flag(monad-control-1)
+    build-depends:
+      monad-control == 1.0.*
+    if impl(ghc >= 7.8)
+      build-depends:
+        constraints >= 0.2 && < 0.5
+    else
+      build-depends:
+        constraints >= 0.2 && <= 0.4
+  else
+    build-depends:
+      monad-control == 0.*
   ghc-options: -Wall
   hs-source-dirs: src
 
@@ -95,5 +112,5 @@ source-repository head
 
 source-repository this
   type: git
-  tag: v0.2.0.2
+  tag: v0.3.0
   location: https://github.com/maoe/lifted-async.git
