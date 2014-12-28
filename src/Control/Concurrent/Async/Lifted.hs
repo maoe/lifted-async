@@ -11,7 +11,7 @@ License     : BSD-style (see the file LICENSE)
 Maintainer  : Mitsutoshi Aoe <maoe@foldr.in>
 Stability   : experimental
 
-This is a wrapped version of "Control.Concurrent.Async" with types generalized
+This is a wrapped version of @Control.Concurrent.Async@ with types generalized
 from 'IO' to all monads in either 'MonadBase' or 'MonadBaseControl'.
 
 All the functions restore the monadic effects in the forked computation
@@ -19,7 +19,8 @@ unless specified otherwise.
 
 #if MIN_VERSION_monad_control(1, 0, 0)
 If your monad stack satisfies @'StM' m a ~ a@ (e.g. the reader monad), consider
-using @Control.Concurrent.Async.Lifted.Safe@ module instead.
+using @Control.Concurrent.Async.Lifted.Safe@ module, which prevents you from
+messing up monadic effects.
 #endif
 -}
 
@@ -349,20 +350,21 @@ mapConcurrently f = runConcurrently . traverse (Concurrently . f)
 
 -- | Generalized version of 'A.Concurrently'.
 --
--- A value of type @Concurrently b m a@ is an IO-based operation that can be
+-- A value of type @'Concurrently' b m a@ is an IO-based operation that can be
 -- composed with other 'Concurrently' values, using the 'Applicative' and
 -- 'Alternative' instances.
 --
--- Calling 'runConcurrently' on a value of type @Concurrently b m a@ will
+-- Calling 'runConcurrently' on a value of type @'Concurrently' b m a@ will
 -- execute the IO-based lifted operations it contains concurrently, before
 -- delivering the result of type 'a'.
 --
 -- For example
 --
--- > (page1, page2, page3) <- runConcurrently $ (,,)
--- >   <$> Concurrently (getURL "url1")
--- >   <*> Concurrently (getURL "url2")
--- >   <*> Concurrently (getURL "url3")
+-- @
+--   (page1, page2, page3) <- 'runConcurrently' $ (,,)
+--     '<$>' 'Concurrently' (getURL "url1")
+--     '<*>' 'Concurrently' (getURL "url2")
+--     '<*>' 'Concurrently' (getURL "url3")
 newtype Concurrently (b :: * -> *) m a = Concurrently { runConcurrently :: m a }
 
 -- NOTE: The phantom type variable @b :: * -> *@ in 'Concurrently' is needed to

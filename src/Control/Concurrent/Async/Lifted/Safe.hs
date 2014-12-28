@@ -20,17 +20,13 @@ License     : BSD-style (see the file LICENSE)
 Maintainer  : Mitsutoshi Aoe <maoe@foldr.in>
 Stability   : experimental
 
-This is a wrapped version of "Control.Concurrent.Async" with types generalized
-from 'IO' to all monads in either 'MonadBase' or 'MonadBaseControl'.
+This is a safe variant of @Control.Concurrent.Async.Lifted@.
 
-This module assumes your monad stack to satisfy @'StM' m a ~ a@ for safety.
-The safety here means you can't accidentally overwrite monadic effects because
-the monad stack doesn't have state in the first place. If your monad stack is
-stateful, use @Control.Concurrent.Async.Lifted@ with special care.
+This module assumes your monad stack to satisfy @'StM' m a ~ a@ so you can't
+mess up monadic effects. If your monad stack is stateful, use
+@Control.Concurrent.Async.Lifted@ with special care.
 
 #if MIN_VERSION_monad_control(1, 0, 0)
-Caveat: Currently due to an implementation restriction, there's no
-`A.Concurrently` type and accompanying functions.
 #else
 Caveat: This module is available only if built with @monad-control >= 1.0.0@.
 If you have older @monad-control@, use @Control.Concurrent.Async.Lifted@.
@@ -278,20 +274,22 @@ mapConcurrently f = runConcurrently . traverse (Concurrently . f)
 
 -- | Generalized version of 'A.Concurrently'.
 --
--- A value of type @Concurrently b m a@ is an IO-based operation that can be
+-- A value of type @'Concurrently' b m a@ is an IO-based operation that can be
 -- composed with other 'Concurrently' values, using the 'Applicative' and
 -- 'Alternative' instances.
 --
--- Calling 'runConcurrently' on a value of type @Concurrently b m a@ will
+-- Calling 'runConcurrently' on a value of type @'Concurrently' b m a@ will
 -- execute the IO-based lifted operations it contains concurrently, before
 -- delivering the result of type 'a'.
 --
 -- For example
 --
--- > (page1, page2, page3) <- runConcurrently $ (,,)
--- >   <$> Concurrently (getURL "url1")
--- >   <*> Concurrently (getURL "url2")
--- >   <*> Concurrently (getURL "url3")
+-- @
+--   (page1, page2, page3) <- 'runConcurrently' $ (,,)
+--     '<$>' 'Concurrently' (getURL "url1")
+--     '<*>' 'Concurrently' (getURL "url2")
+--     '<*>' 'Concurrently' (getURL "url3")
+-- @
 data Concurrently (base :: * -> *) m a where
   Concurrently
     :: Forall (Pure m)
@@ -302,6 +300,9 @@ data Concurrently (base :: * -> *) m a where
 -- See https://github.com/maoe/lifted-async/issues/4 for alternative
 -- implementaions.
 
+-- | @'Pure' m a@ only means @m@ satisfies @'StM' m a ~ a@ (i.e. the monad
+-- @m@ has no monadic state). The boring 'Pure' class is necessary just to
+-- convince the GHC type checker.
 class StM m a ~ a => Pure m a
 instance StM m a ~ a => Pure m a
 
