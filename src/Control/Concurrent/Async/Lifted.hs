@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE RankNTypes #-}
@@ -10,15 +11,25 @@ License     : BSD-style (see the file LICENSE)
 Maintainer  : Mitsutoshi Aoe <maoe@foldr.in>
 Stability   : experimental
 
-This is a wrapped version of "Control.Concurrent.Async" with types generalized
+This is a wrapped version of @Control.Concurrent.Async@ with types generalized
 from 'IO' to all monads in either 'MonadBase' or 'MonadBaseControl'.
+
+All the functions restore the monadic effects in the forked computation
+unless specified otherwise.
+
+#if MIN_VERSION_monad_control(1, 0, 0)
+If your monad stack satisfies @'StM' m a ~ a@ (e.g. the reader monad), consider
+using @Control.Concurrent.Async.Lifted.Safe@ module, which prevents you from
+messing up monadic effects.
+#endif
 -}
 
 module Control.Concurrent.Async.Lifted
   ( -- * Asynchronous actions
     A.Async
     -- ** Spawning
-  , async, asyncBound, asyncOn, asyncWithUnmask, asyncOnWithUnmask
+  , async, asyncBound, asyncOn
+  , asyncWithUnmask, asyncOnWithUnmask
 
     -- ** Spawning with automatic 'cancel'ation
   , withAsync, withAsyncBound, withAsyncOn
@@ -47,7 +58,7 @@ module Control.Concurrent.Async.Lifted
 
 import Control.Applicative
 import Control.Concurrent (threadDelay)
-import Control.Monad ((>=>), forever, liftM, void)
+import Control.Monad ((>=>), forever, liftM)
 import Data.Traversable (Traversable(..))
 import GHC.IO (unsafeUnmask)
 import Prelude hiding (mapM)
@@ -172,20 +183,26 @@ poll a =
   liftBase (A.poll a) >>=
   maybe (return Nothing) (liftM Just . sequenceEither)
 
+-- | Generalized version of 'A.cancel'.
+--
+-- NOTE: This function discards the monadic effects besides IO in the forked
+-- computation.
+cancel :: MonadBase IO m => Async a -> m ()
+cancel = liftBase . A.cancel
+
+-- | Generalized version of 'A.cancelWith'.
+--
+-- NOTE: This function discards the monadic effects besides IO in the forked
+-- computation.
+cancelWith :: (MonadBase IO m, Exception e) => Async a -> e -> m ()
+cancelWith = (liftBase .) . A.cancelWith
+
 -- | Generalized version of 'A.waitCatch'.
 waitCatch
   :: MonadBaseControl IO m
   => Async (StM m a)
   -> m (Either SomeException a)
 waitCatch a = liftBase (A.waitCatch a) >>= sequenceEither
-
--- | Generalized version of 'A.cancel'.
-cancel :: MonadBase IO m => Async (StM m a) -> m ()
-cancel = liftBase . A.cancel
-
--- | Generalized version of 'A.cancelWith'.
-cancelWith :: (MonadBase IO m, Exception e) => Async (StM m a) -> e -> m ()
-cancelWith = (liftBase .) . A.cancelWith
 
 -- | Generalized version of 'A.waitAny'.
 waitAny :: MonadBaseControl IO m => [Async (StM m a)] -> m (Async (StM m a), a)
@@ -205,8 +222,14 @@ waitAnyCatch as = do
   return (a, r)
 
 -- | Generalized version of 'A.waitAnyCancel'.
-waitAnyCancel :: MonadBase IO m => [Async a] -> m (Async a, a)
-waitAnyCancel = liftBase . A.waitAnyCancel
+waitAnyCancel
+  :: MonadBaseControl IO m
+  => [Async (StM m a)]
+  -> m (Async (StM m a), a)
+waitAnyCancel as = do
+  (a, s) <- liftBase $ A.waitAnyCancel as
+  r <- restoreM s
+  return (a, r)
 
 -- | Generalized version of 'A.waitAnyCatchCancel'.
 waitAnyCatchCancel
@@ -259,12 +282,15 @@ waitEitherCatchCancel a b =
   either (liftM Left . sequenceEither) (liftM Right . sequenceEither)
 
 -- | Generalized version of 'A.waitEither_'.
+--
+-- NOTE: This function discards the monadic effects besides IO in the forked
+-- computation.
 waitEither_
   :: MonadBaseControl IO m
-  => Async (StM m a)
-  -> Async (StM m b)
+  => Async a
+  -> Async b
   -> m ()
-waitEither_ = (void .) . waitEither
+waitEither_ a b = liftBase (A.waitEither_ a b)
 
 -- | Generalized version of 'A.waitBoth'.
 waitBoth
@@ -280,11 +306,11 @@ waitBoth a b = do
 {-# INLINABLE waitBoth #-}
 
 -- | Generalized version of 'A.link'.
-link :: MonadBase IO m => Async (StM m a) -> m ()
+link :: MonadBase IO m => Async a -> m ()
 link = liftBase . A.link
 
 -- | Generalized version of 'A.link2'.
-link2 :: MonadBase IO m => Async (StM m a) -> Async (StM m b) -> m ()
+link2 :: MonadBase IO m => Async a -> Async a -> m ()
 link2 = (liftBase .) . A.link2
 
 -- | Generalized version of 'A.race'.
@@ -296,6 +322,9 @@ race left right =
 {-# INLINABLE race #-}
 
 -- | Generalized version of 'A.race_'.
+--
+-- NOTE: This function discards the monadic effects besides IO in the forked
+-- computation.
 race_ :: MonadBaseControl IO m => m a -> m b -> m ()
 race_ left right =
   withAsync left $ \a ->
@@ -321,20 +350,21 @@ mapConcurrently f = runConcurrently . traverse (Concurrently . f)
 
 -- | Generalized version of 'A.Concurrently'.
 --
--- A value of type @Concurrently b m a@ is an IO-based operation that can be
+-- A value of type @'Concurrently' b m a@ is an IO-based operation that can be
 -- composed with other 'Concurrently' values, using the 'Applicative' and
 -- 'Alternative' instances.
 --
--- Calling 'runConcurrently' on a value of type @Concurrently b m a@ will
+-- Calling 'runConcurrently' on a value of type @'Concurrently' b m a@ will
 -- execute the IO-based lifted operations it contains concurrently, before
 -- delivering the result of type 'a'.
 --
 -- For example
 --
--- > (page1, page2, page3) <- runConcurrently $ (,,)
--- >   <$> Concurrently (getURL "url1")
--- >   <*> Concurrently (getURL "url2")
--- >   <*> Concurrently (getURL "url3")
+-- @
+--   (page1, page2, page3) <- 'runConcurrently' $ (,,)
+--     '<$>' 'Concurrently' (getURL "url1")
+--     '<*>' 'Concurrently' (getURL "url2")
+--     '<*>' 'Concurrently' (getURL "url3")
 newtype Concurrently (b :: * -> *) m a = Concurrently { runConcurrently :: m a }
 
 -- NOTE: The phantom type variable @b :: * -> *@ in 'Concurrently' is needed to
