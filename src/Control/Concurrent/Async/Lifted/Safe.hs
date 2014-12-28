@@ -9,6 +9,10 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeOperators #-}
 
+#if defined(__GLASGOW_HASKELL__) && __GLAGOW_HASKELL__ <= 706
+{-# LANGUAGE UndecidableInstances #-}
+#endif
+
 {- |
 Module      : Control.Concurrent.Async.Lifted.Safe
 Copyright   : Copyright (C) 2012-2014 Mitsutoshi Aoe
