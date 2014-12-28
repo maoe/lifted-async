@@ -365,6 +365,7 @@ mapConcurrently f = runConcurrently . traverse (Concurrently . f)
 --     '<$>' 'Concurrently' (getURL "url1")
 --     '<*>' 'Concurrently' (getURL "url2")
 --     '<*>' 'Concurrently' (getURL "url3")
+-- @
 newtype Concurrently (b :: * -> *) m a = Concurrently { runConcurrently :: m a }
 
 -- NOTE: The phantom type variable @b :: * -> *@ in 'Concurrently' is needed to
