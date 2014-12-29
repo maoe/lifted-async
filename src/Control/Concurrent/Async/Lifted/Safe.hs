@@ -274,11 +274,11 @@ mapConcurrently f = runConcurrently . traverse (Concurrently . f)
 
 -- | Generalized version of 'A.Concurrently'.
 --
--- A value of type @'Concurrently' b m a@ is an IO-based operation that can be
+-- A value of type @'Concurrently' m a@ is an IO-based operation that can be
 -- composed with other 'Concurrently' values, using the 'Applicative' and
 -- 'Alternative' instances.
 --
--- Calling 'runConcurrently' on a value of type @'Concurrently' b m a@ will
+-- Calling 'runConcurrently' on a value of type @'Concurrently' m a@ will
 -- execute the IO-based lifted operations it contains concurrently, before
 -- delivering the result of type 'a'.
 --
@@ -293,12 +293,6 @@ mapConcurrently f = runConcurrently . traverse (Concurrently . f)
 data Concurrently m a where
   Concurrently
     :: Forall (Pure m) => { runConcurrently :: m a } -> Concurrently m a
-
--- NOTE: The phantom type variable @base :: * -> *@ in 'Concurrently' is
--- necessary to avoid @UndecidableInstances@ in the following instance
--- declarations.
--- See https://github.com/maoe/lifted-async/issues/4 for alternative
--- implementaions.
 
 -- | @'Pure' m a@ only means @m@ satisfies @'StM' m a ~ a@ (i.e. the monad
 -- @m@ has no monadic state). The boring 'Pure' class is necessary just to
