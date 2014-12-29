@@ -69,7 +69,7 @@ import Control.Monad.Trans.Control
 import qualified Control.Concurrent.Async as A
 import qualified Control.Exception.Lifted as E
 
-#if defined(__GLAGOW_HASKELL__) && __GLASGOW_HASKELL__ < 710
+#if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ < 710
 import Data.Traversable
 #endif
 
