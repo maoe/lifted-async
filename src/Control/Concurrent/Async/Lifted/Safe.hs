@@ -1,5 +1,5 @@
-{-# LANGUAGE CPP #-}
 {-# LANGUAGE ConstraintKinds #-}
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GADTs #-}
@@ -8,10 +8,7 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeOperators #-}
-
-#if defined(__GLASGOW_HASKELL__) && __GLAGOW_HASKELL__ <= 706
 {-# LANGUAGE UndecidableInstances #-}
-#endif
 
 {- |
 Module      : Control.Concurrent.Async.Lifted.Safe
@@ -293,10 +290,9 @@ mapConcurrently f = runConcurrently . traverse (Concurrently . f)
 --     '<*>' 'Concurrently' (getURL "url2")
 --     '<*>' 'Concurrently' (getURL "url3")
 -- @
-data Concurrently (base :: * -> *) m a where
+data Concurrently m a where
   Concurrently
-    :: Forall (Pure m)
-    => { runConcurrently :: m a } -> Concurrently base m a
+    :: Forall (Pure m) => { runConcurrently :: m a } -> Concurrently m a
 
 -- NOTE: The phantom type variable @base :: * -> *@ in 'Concurrently' is
 -- necessary to avoid @UndecidableInstances@ in the following instance
@@ -310,27 +306,27 @@ data Concurrently (base :: * -> *) m a where
 class StM m a ~ a => Pure m a
 instance StM m a ~ a => Pure m a
 
-instance (base ~ IO, Functor m) => Functor (Concurrently base m) where
+instance Functor m => Functor (Concurrently m) where
   fmap f (Concurrently a) = Concurrently $ f <$> a
 
-instance (base ~ IO, MonadBaseControl base m, Forall (Pure m)) =>
-  Applicative (Concurrently base m) where
+instance (MonadBaseControl IO m, Forall (Pure m)) =>
+  Applicative (Concurrently m) where
     pure = Concurrently . pure
     Concurrently (fs :: m (a -> b)) <*> Concurrently as =
       Concurrently (uncurry ($) <$> concurrently fs as)
         \\ (inst :: Forall (Pure m) :- Pure m a)
         \\ (inst :: Forall (Pure m) :- Pure m (a -> b))
 
-instance (base ~ IO, MonadBaseControl base m, Forall (Pure m)) =>
-  Alternative (Concurrently base m) where
+instance (MonadBaseControl IO m, Forall (Pure m)) =>
+  Alternative (Concurrently m) where
     empty = Concurrently . liftBaseWith . const $ forever (threadDelay maxBound)
     Concurrently (as :: m a) <|> Concurrently bs =
       Concurrently (either id id <$> race as bs)
         \\ (inst :: Forall (Pure m) :- Pure m a)
         \\ (inst :: Forall (Pure m) :- Pure m b)
 
-instance (base ~ IO, MonadBaseControl base m, Forall (Pure m)) =>
-  Monad (Concurrently base m) where
+instance (MonadBaseControl IO m, Forall (Pure m)) =>
+  Monad (Concurrently m) where
     return = Concurrently . return
     Concurrently a >>= f = Concurrently $ a >>= runConcurrently . f
 #endif
