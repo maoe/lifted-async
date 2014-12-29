@@ -1,3 +1,7 @@
+## v0.5.0 - 2014-12-29
+
+* Simplify the type of `Concurrently` (#10)
+
 ## v0.4.0 - 2014-12-29
 
 * Accept `constraints > 0.4` as well even when built with ghc < 7.8.
