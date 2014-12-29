@@ -59,7 +59,6 @@ module Control.Concurrent.Async.Lifted
 import Control.Applicative
 import Control.Concurrent (threadDelay)
 import Control.Monad ((>=>), forever, liftM)
-import Data.Traversable (Traversable(..))
 import GHC.IO (unsafeUnmask)
 import Prelude hiding (mapM)
 
@@ -69,6 +68,10 @@ import Control.Monad.Base (MonadBase(..))
 import Control.Monad.Trans.Control
 import qualified Control.Concurrent.Async as A
 import qualified Control.Exception.Lifted as E
+
+#if defined(__GLAGOW_HASKELL__) && __GLASGOW_HASKELL__ < 710
+import Data.Traversable
+#endif
 
 -- | Generalized version of 'A.async'.
 async :: MonadBaseControl IO m => m a -> m (Async (StM m a))
@@ -386,7 +389,7 @@ instance (b ~ IO, MonadBaseControl b m) => Alternative (Concurrently b m) where
   Concurrently as <|> Concurrently bs =
     Concurrently $ either id id <$> race as bs
 
-instance Monad m => Monad (Concurrently b m) where
+instance (b ~ IO, MonadBaseControl b m) => Monad (Concurrently b m) where
   return = Concurrently . return
   Concurrently a >>= f = Concurrently $ a >>= runConcurrently . f
 

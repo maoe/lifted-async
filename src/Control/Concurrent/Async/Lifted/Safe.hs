@@ -72,7 +72,6 @@ module Control.Concurrent.Async.Lifted.Safe
 import Control.Applicative
 import Control.Concurrent (threadDelay)
 import Control.Monad
-import Data.Traversable
 
 import Control.Concurrent.Async (Async)
 import Control.Exception.Lifted (SomeException, Exception)
@@ -83,6 +82,10 @@ import Data.Constraint.Forall (Forall, inst)
 import qualified Control.Concurrent.Async as A
 
 import qualified Control.Concurrent.Async.Lifted as Unsafe
+
+#if defined(__GLAGOW_HASKELL__) && __GLASGOW_HASKELL__ < 710
+import Data.Traversable
+#endif
 
 -- | Generalized version of 'A.async'.
 async :: (MonadBaseControl IO m, StM m a ~ a) => m a -> m (Async a)
@@ -325,7 +328,8 @@ instance (base ~ IO, MonadBaseControl base m, Forall (Pure m)) =>
         \\ (inst :: Forall (Pure m) :- Pure m a)
         \\ (inst :: Forall (Pure m) :- Pure m b)
 
-instance (Monad m, Forall (Pure m)) => Monad (Concurrently base m) where
-  return = Concurrently . return
-  Concurrently a >>= f = Concurrently $ a >>= runConcurrently . f
+instance (base ~ IO, MonadBaseControl base m, Forall (Pure m)) =>
+  Monad (Concurrently base m) where
+    return = Concurrently . return
+    Concurrently a >>= f = Concurrently $ a >>= runConcurrently . f
 #endif
