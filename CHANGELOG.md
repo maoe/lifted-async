@@ -1,3 +1,7 @@
+## v0.5.0.1 - 2014-12-29
+
+* Fix build issues in the test suite (#11 and others)
+
 ## v0.5.0 - 2014-12-29
 
 * Simplify the type of `Concurrently` (#10)
