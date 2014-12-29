@@ -1,4 +1,8 @@
-=======
+## v0.4.0 - 2014-12-29
+
+* Accept `constraints > 0.4` as well even when built with ghc < 7.8.
+* Support for GHC 7.10.1
+
 ## v0.3.0 - 2014-12-28
 
 * Support for `monad-control == 1.0.*`
