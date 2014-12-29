@@ -298,8 +298,9 @@ data Concurrently (base :: * -> *) m a where
     :: Forall (Pure m)
     => { runConcurrently :: m a } -> Concurrently base m a
 
--- NOTE: The phantom type variable @b :: * -> *@ in 'Concurrently' is needed to
--- avoid @UndecidableInstances@ in the following instance declarations.
+-- NOTE: The phantom type variable @base :: * -> *@ in 'Concurrently' is
+-- necessary to avoid @UndecidableInstances@ in the following instance
+-- declarations.
 -- See https://github.com/maoe/lifted-async/issues/4 for alternative
 -- implementaions.
 

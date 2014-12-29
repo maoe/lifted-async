@@ -369,29 +369,34 @@ mapConcurrently f = runConcurrently . traverse (Concurrently . f)
 --     '<*>' 'Concurrently' (getURL "url2")
 --     '<*>' 'Concurrently' (getURL "url3")
 -- @
-newtype Concurrently (b :: * -> *) m a = Concurrently { runConcurrently :: m a }
+newtype Concurrently (base :: * -> *) m a =
+  Concurrently { runConcurrently :: m a }
 
--- NOTE: The phantom type variable @b :: * -> *@ in 'Concurrently' is needed to
--- avoid @UndecidableInstances@ in the following instance declarations.
+-- NOTE: The phantom type variable @base :: * -> *@ in 'Concurrently' is
+-- necessary to avoid @UndecidableInstances@ in the following instance
+-- declarations.
 -- See https://github.com/maoe/lifted-async/issues/4 for alternative
 -- implementaions.
 
-instance (b ~ IO, Functor m) => Functor (Concurrently b m) where
+instance (base ~ IO, Functor m) => Functor (Concurrently base m) where
   fmap f (Concurrently a) = Concurrently $ f <$> a
 
-instance (b ~ IO, MonadBaseControl b m) => Applicative (Concurrently b m) where
-  pure = Concurrently . pure
-  Concurrently fs <*> Concurrently as =
-    Concurrently $ uncurry ($) <$> concurrently fs as
+instance (base ~ IO, MonadBaseControl base m) =>
+  Applicative (Concurrently base m) where
+    pure = Concurrently . pure
+    Concurrently fs <*> Concurrently as =
+      Concurrently $ uncurry ($) <$> concurrently fs as
 
-instance (b ~ IO, MonadBaseControl b m) => Alternative (Concurrently b m) where
-  empty = Concurrently . liftBaseWith . const $ forever (threadDelay maxBound)
-  Concurrently as <|> Concurrently bs =
-    Concurrently $ either id id <$> race as bs
+instance (base ~ IO, MonadBaseControl base m) =>
+  Alternative (Concurrently base m) where
+    empty = Concurrently . liftBaseWith . const $ forever (threadDelay maxBound)
+    Concurrently as <|> Concurrently bs =
+      Concurrently $ either id id <$> race as bs
 
-instance (b ~ IO, MonadBaseControl b m) => Monad (Concurrently b m) where
-  return = Concurrently . return
-  Concurrently a >>= f = Concurrently $ a >>= runConcurrently . f
+instance (base ~ IO, MonadBaseControl base m) =>
+  Monad (Concurrently base m) where
+    return = Concurrently . return
+    Concurrently a >>= f = Concurrently $ a >>= runConcurrently . f
 
 sequenceEither :: MonadBaseControl IO m => Either e (StM m a) -> m (Either e a)
 sequenceEither = either (return . Left) (liftM Right . restoreM)
