@@ -76,7 +76,7 @@ script:
  # (including tests/benchmarks)
  - cabal build -j
 
- - run-cabal-test --cabal-name=cabal --show-details=streaming
+ - run-cabal-test --cabal-name=cabal --show-details=always
  - cabal check
 
  # tests that a source-distribution can be generated
