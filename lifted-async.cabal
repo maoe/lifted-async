@@ -52,6 +52,7 @@ test-suite test-lifted-async
     Test.Async.Common
     Test.Async.IO
     Test.Async.State
+    Test.Async.Reader
   build-depends:
       base
     , HUnit
