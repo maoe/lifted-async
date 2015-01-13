@@ -35,6 +35,9 @@ module Control.Concurrent.Async.Lifted.Safe
 #if MIN_VERSION_monad_control(1, 0, 0)
     -- * Asynchronous actions
     A.Async
+
+  , Pure
+  , Forall
     -- ** Spawning
   , async, asyncBound, asyncOn, asyncWithUnmask, asyncOnWithUnmask
 
@@ -61,7 +64,8 @@ module Control.Concurrent.Async.Lifted.Safe
 
     -- * Convenient utilities
   , race, race_, concurrently, mapConcurrently
-  , Concurrently(..), Pure
+  , Concurrently(..)
+
 #endif
   ) where
 
@@ -85,91 +89,112 @@ import Data.Traversable
 #endif
 
 -- | Generalized version of 'A.async'.
-async :: (MonadBaseControl IO m, StM m a ~ a) => m a -> m (Async a)
+async
+  :: forall m a. (MonadBaseControl IO m, Forall (Pure m))
+  => m a -> m (Async a)
 async = Unsafe.async
+  \\ (inst :: Forall (Pure m) :- Pure m a)
 
 -- | Generalized version of 'A.asyncBound'.
-asyncBound :: (MonadBaseControl IO m, StM m a ~ a) => m a -> m (Async a)
+asyncBound
+  :: forall m a. (MonadBaseControl IO m, Forall (Pure m))
+  => m a -> m (Async a)
 asyncBound = Unsafe.asyncBound
+  \\ (inst :: Forall (Pure m) :- Pure m a)
 
 -- | Generalized version of 'A.asyncOn'.
-asyncOn :: (MonadBaseControl IO m, StM m a ~ a) => Int -> m a -> m (Async a)
-asyncOn = Unsafe.asyncOn
+asyncOn
+  :: forall m a. (MonadBaseControl IO m, Forall (Pure m))
+  => Int -> m a -> m (Async a)
+asyncOn cpu m = Unsafe.asyncOn cpu m
+  \\ (inst :: Forall (Pure m) :- Pure m a)
 
 -- | Generalized version of 'A.asyncWithUnmask'.
 asyncWithUnmask
-  :: (MonadBaseControl IO m, StM m a ~ a)
+  :: forall m a. (MonadBaseControl IO m, Forall (Pure m))
   => ((forall b. m b -> m b) -> m a)
   -> m (Async a)
-asyncWithUnmask = Unsafe.asyncWithUnmask
+asyncWithUnmask restore = Unsafe.asyncWithUnmask restore
+  \\ (inst :: Forall (Pure m) :- Pure m a)
 
 -- | Generalized version of 'A.asyncOnWithUnmask'.
 asyncOnWithUnmask
-  :: (MonadBaseControl IO m, StM m a ~ a)
+  :: forall m a. (MonadBaseControl IO m, Forall (Pure m))
   => Int
   -> ((forall b. m b -> m b) -> m a)
   -> m (Async a)
-asyncOnWithUnmask = Unsafe.asyncOnWithUnmask
+asyncOnWithUnmask cpu restore = Unsafe.asyncOnWithUnmask cpu restore
+  \\ (inst :: Forall (Pure m) :- Pure m a)
 
 -- | Generalized version of 'A.withAsync'.
 withAsync
-  :: (MonadBaseControl IO m, StM m a ~ a)
+  :: forall m a b. (MonadBaseControl IO m, Forall (Pure m))
   => m a
   -> (Async a -> m b)
   -> m b
 withAsync = Unsafe.withAsync
+  \\ (inst :: Forall (Pure m) :- Pure m a)
 
 -- | Generalized version of 'A.withAsyncBound'.
 withAsyncBound
-  :: (MonadBaseControl IO m, StM m a ~ a)
+  :: forall m a b. (MonadBaseControl IO m, Forall (Pure m))
   => m a
   -> (Async a -> m b)
   -> m b
 withAsyncBound = Unsafe.withAsyncBound
+  \\ (inst :: Forall (Pure m) :- Pure m a)
 
 -- | Generalized version of 'A.withAsyncOn'.
 withAsyncOn
-  :: (MonadBaseControl IO m, StM m a ~ a)
+  :: forall m a b. (MonadBaseControl IO m, Forall (Pure m))
   => Int
   -> m a
   -> (Async a -> m b)
   -> m b
 withAsyncOn = Unsafe.withAsyncOn
+  \\ (inst :: Forall (Pure m) :- Pure m a)
 
 -- | Generalized version of 'A.withAsyncWithUnmask'.
 withAsyncWithUnmask
-  :: (MonadBaseControl IO m, StM m a ~ a)
+  :: forall m a b. (MonadBaseControl IO m, Forall (Pure m))
   => ((forall c. m c -> m c) -> m a)
   -> (Async a -> m b)
   -> m b
-withAsyncWithUnmask = Unsafe.withAsyncWithUnmask
+withAsyncWithUnmask restore = Unsafe.withAsyncWithUnmask restore
+  \\ (inst :: Forall (Pure m) :- Pure m a)
 
 -- | Generalized version of 'A.withAsyncOnWithUnmask'.
 withAsyncOnWithUnmask
-  :: (MonadBaseControl IO m, StM m a ~ a)
+  :: forall m a b. (MonadBaseControl IO m, Forall (Pure m))
   => Int
   -> ((forall c. m c -> m c) -> m a)
   -> (Async a -> m b)
   -> m b
-withAsyncOnWithUnmask = Unsafe.withAsyncOnWithUnmask
+withAsyncOnWithUnmask cpu restore = Unsafe.withAsyncOnWithUnmask cpu restore
+  \\ (inst :: Forall (Pure m) :- Pure m a)
 
 -- | Generalized version of 'A.wait'.
-wait :: (MonadBaseControl IO m, StM m a ~ a) => Async a -> m a
+wait
+  :: forall m a. (MonadBaseControl IO m, Forall (Pure m))
+  => Async a -> m a
 wait = Unsafe.wait
+  \\ (inst :: Forall (Pure m) :- Pure m a)
 
 -- | Generalized version of 'A.poll'.
 poll
-  :: (MonadBaseControl IO m, StM m a ~ a)
+  :: forall m a. (MonadBaseControl IO m, Forall (Pure m))
   => Async a
   -> m (Maybe (Either SomeException a))
 poll = Unsafe.poll
+  \\ (inst :: Forall (Pure m) :- Pure m a)
 
 -- | Generalized version of 'A.waitCatch'.
 waitCatch
-  :: (MonadBaseControl IO m, StM m a ~ a)
+  :: forall m a. (MonadBaseControl IO m, Forall (Pure m))
   => Async a
   -> m (Either SomeException a)
 waitCatch = Unsafe.waitCatch
+  \\ (inst :: Forall (Pure m) :- Pure m a)
 
 -- | Generalized version of 'A.cancel'.
 cancel :: MonadBase IO m => Async a -> m ()
@@ -181,88 +206,108 @@ cancelWith = Unsafe.cancelWith
 
 -- | Generalized version of 'A.waitAny'.
 waitAny
-  :: (MonadBaseControl IO m, StM m a ~ a)
+  :: forall m a. (MonadBaseControl IO m, Forall (Pure m))
   => [Async a] -> m (Async a, a)
 waitAny = Unsafe.waitAny
+  \\ (inst :: Forall (Pure m) :- Pure m a)
 
 -- | Generalized version of 'A.waitAnyCatch'.
 waitAnyCatch
-  :: (MonadBaseControl IO m, StM m a ~ a)
+  :: forall m a. (MonadBaseControl IO m, Forall (Pure m))
   => [Async a]
   -> m (Async a, Either SomeException a)
 waitAnyCatch = Unsafe.waitAnyCatch
+  \\ (inst :: Forall (Pure m) :- Pure m a)
 
 -- | Generalized version of 'A.waitAnyCancel'.
 waitAnyCancel
-  :: (MonadBaseControl IO m, StM m a ~ a)
+  :: forall m a. (MonadBaseControl IO m, Forall (Pure m))
   => [Async a]
   -> m (Async a, a)
 waitAnyCancel = Unsafe.waitAnyCancel
+  \\ (inst :: Forall (Pure m) :- Pure m a)
 
 -- | Generalized version of 'A.waitAnyCatchCancel'.
 waitAnyCatchCancel
-  :: (MonadBaseControl IO m, StM m a ~ a)
+  :: forall m a. (MonadBaseControl IO m, Forall (Pure m))
   => [Async a]
   -> m (Async a, Either SomeException a)
 waitAnyCatchCancel = Unsafe.waitAnyCatchCancel
+  \\ (inst :: Forall (Pure m) :- Pure m a)
 
 -- | Generalized version of 'A.waitEither'.
 waitEither
-  :: (MonadBaseControl IO m, StM m a ~ a, StM m b ~ b)
+  :: forall m a b. (MonadBaseControl IO m, Forall (Pure m))
   => Async a
   -> Async b
   -> m (Either a b)
 waitEither = Unsafe.waitEither
+  \\ (inst :: Forall (Pure m) :- Pure m a)
+  \\ (inst :: Forall (Pure m) :- Pure m b)
 
 -- | Generalized version of 'A.waitEitherCatch'.
 waitEitherCatch
-  :: (MonadBaseControl IO m, StM m a ~ a, StM m b ~ b)
+  :: forall m a b. (MonadBaseControl IO m, Forall (Pure m))
   => Async a
   -> Async b
   -> m (Either (Either SomeException a) (Either SomeException b))
 waitEitherCatch = Unsafe.waitEitherCatch
+  \\ (inst :: Forall (Pure m) :- Pure m a)
+  \\ (inst :: Forall (Pure m) :- Pure m b)
 
 -- | Generalized version of 'A.waitEitherCancel'.
 waitEitherCancel
-  :: (MonadBaseControl IO m, StM m a ~ a, StM m b ~ b)
+  :: forall m a b. (MonadBaseControl IO m, Forall (Pure m))
   => Async a
   -> Async b
   -> m (Either a b)
 waitEitherCancel = Unsafe.waitEitherCancel
+  \\ (inst :: Forall (Pure m) :- Pure m a)
+  \\ (inst :: Forall (Pure m) :- Pure m b)
 
 -- | Generalized version of 'A.waitEitherCatchCancel'.
 waitEitherCatchCancel
-  :: (MonadBaseControl IO m, StM m a ~ a, StM m b ~ b)
+  :: forall m a b. (MonadBaseControl IO m, Forall (Pure m))
   => Async a
   -> Async b
   -> m (Either (Either SomeException a) (Either SomeException b))
 waitEitherCatchCancel = Unsafe.waitEitherCatchCancel
+  \\ (inst :: Forall (Pure m) :- Pure m a)
+  \\ (inst :: Forall (Pure m) :- Pure m b)
 
 -- | Generalized version of 'A.waitBoth'.
 waitBoth
-  :: (MonadBaseControl IO m, StM m a ~ a, StM m b ~ b)
+  :: forall m a b. (MonadBaseControl IO m, Forall (Pure m))
   => Async a
   -> Async b
   -> m (a, b)
 waitBoth = Unsafe.waitBoth
+  \\ (inst :: Forall (Pure m) :- Pure m a)
+  \\ (inst :: Forall (Pure m) :- Pure m b)
 
 -- | Generalized version of 'A.race'.
 race
-  :: (MonadBaseControl IO m, StM m a ~ a, StM m b ~ b)
+  :: forall m a b. (MonadBaseControl IO m, Forall (Pure m))
   => m a -> m b -> m (Either a b)
 race = Unsafe.race
+  \\ (inst :: Forall (Pure m) :- Pure m a)
+  \\ (inst :: Forall (Pure m) :- Pure m b)
 
 -- | Generalized version of 'A.race_'.
 race_
-  :: (MonadBaseControl IO m, StM m a ~ a, StM m b ~ b)
+  :: forall m a b. (MonadBaseControl IO m, Forall (Pure m))
   => m a -> m b -> m ()
 race_ = Unsafe.race_
+  \\ (inst :: Forall (Pure m) :- Pure m a)
+  \\ (inst :: Forall (Pure m) :- Pure m b)
 
 -- | Generalized version of 'A.concurrently'.
 concurrently
-  :: (MonadBaseControl IO m, StM m a ~ a, StM m b ~ b)
+  :: forall m a b. (MonadBaseControl IO m, Forall (Pure m))
   => m a -> m b -> m (a, b)
 concurrently = Unsafe.concurrently
+  \\ (inst :: Forall (Pure m) :- Pure m a)
+  \\ (inst :: Forall (Pure m) :- Pure m b)
 
 -- | Generalized version of 'A.mapConcurrently'.
 mapConcurrently
@@ -294,9 +339,9 @@ data Concurrently m a where
   Concurrently
     :: Forall (Pure m) => { runConcurrently :: m a } -> Concurrently m a
 
--- | @'Pure' m a@ only means @m@ satisfies @'StM' m a ~ a@ (i.e. the monad
--- @m@ has no monadic state). The boring 'Pure' class is necessary just to
--- convince the GHC type checker.
+-- | Most of the functions in this module have @'Forall' ('Pure' m)@ in their
+-- constraints, which means they require the monad 'm' satisfies
+-- @'StM' m a ~ a@ for all 'a'.
 class StM m a ~ a => Pure m a
 instance StM m a ~ a => Pure m a
 
