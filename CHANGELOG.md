@@ -1,3 +1,7 @@
+## v0.6.0 - 2015-01-13
+
+* Replace `StM m a ~ a` in the type signatures with `Forall (Pure m)` (#12)
+
 ## v0.5.0.1 - 2014-12-29
 
 * Fix build issues in the test suite (#11 and others)
