@@ -1,3 +1,7 @@
+## v0.6.0.1 - 2015-01-14
+
+* Increase the lower bound for base to >= 4.5
+
 ## v0.6.0 - 2015-01-13
 
 * Replace `StM m a ~ a` in the type signatures with `Forall (Pure m)` (#12)

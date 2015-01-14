@@ -1,5 +1,5 @@
 name:                lifted-async
-version:             0.6.0
+version:             0.6.0.1
 synopsis:            Run lifted IO operations asynchronously and wait for their results
 homepage:            https://github.com/maoe/lifted-async
 bug-reports:         https://github.com/maoe/lifted-async/issues
@@ -108,5 +108,5 @@ source-repository head
 
 source-repository this
   type: git
-  tag: v0.6.0
+  tag: v0.6.0.1
   location: https://github.com/maoe/lifted-async.git
