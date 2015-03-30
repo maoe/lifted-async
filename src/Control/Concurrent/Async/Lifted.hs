@@ -7,7 +7,7 @@
 
 {- |
 Module      : Control.Concurrent.Async.Lifted
-Copyright   : Copyright (C) 2012-2014 Mitsutoshi Aoe
+Copyright   : Copyright (C) 2012-2015 Mitsutoshi Aoe
 License     : BSD-style (see the file LICENSE)
 Maintainer  : Mitsutoshi Aoe <maoe@foldr.in>
 Stability   : experimental
@@ -314,7 +314,7 @@ link :: MonadBase IO m => Async a -> m ()
 link = liftBase . A.link
 
 -- | Generalized version of 'A.link2'.
-link2 :: MonadBase IO m => Async a -> Async a -> m ()
+link2 :: MonadBase IO m => Async a -> Async b -> m ()
 link2 = (liftBase .) . A.link2
 
 -- | Generalized version of 'A.race'.
