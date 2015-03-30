@@ -22,17 +22,11 @@ This is a safe variant of @Control.Concurrent.Async.Lifted@.
 This module assumes your monad stack to satisfy @'StM' m a ~ a@ so you can't
 mess up monadic effects. If your monad stack is stateful, use
 @Control.Concurrent.Async.Lifted@ with special care.
-
-#if MIN_VERSION_monad_control(1, 0, 0)
-#else
-Caveat: This module is available only if built with @monad-control >= 1.0.0@.
-If you have older @monad-control@, use @Control.Concurrent.Async.Lifted@.
-#endif
 -}
 
 module Control.Concurrent.Async.Lifted.Safe
-  (
 #if MIN_VERSION_monad_control(1, 0, 0)
+  (
     -- * Asynchronous actions
     A.Async
 
@@ -66,8 +60,16 @@ module Control.Concurrent.Async.Lifted.Safe
   , race, race_, concurrently, mapConcurrently
   , Concurrently(..)
 
+
+  )
+#else
+{-# WARNING
+  "This module is available only if built with @monad-control >= 1.0.0@.\
+  If you have an older version of @monad-control@, use\
+  @Control.Concurrent.Async.Lifted@ instead."
+  #-}
 #endif
-  ) where
+  where
 
 #if MIN_VERSION_monad_control(1, 0, 0)
 import Control.Applicative
