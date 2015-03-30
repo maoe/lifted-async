@@ -1,3 +1,8 @@
+## v0.7.0 - 2015-03-30
+
+* Fix the unnecessarily constrained type of link2 (#16)
+* Turn the caveat in the Safe module into a WARNING pragma (#15)
+
 ## v0.6.0.1 - 2015-01-14
 
 * Increase the lower bound for base to >= 4.5
