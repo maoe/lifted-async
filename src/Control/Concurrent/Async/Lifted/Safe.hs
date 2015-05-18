@@ -360,7 +360,7 @@ instance (MonadBaseControl IO m, Forall (Pure m)) =>
 
 instance (MonadBaseControl IO m, Forall (Pure m)) =>
   Alternative (Concurrently m) where
-    empty = Concurrently . liftBaseWith . const $ forever (threadDelay maxBound)
+    empty = Concurrently $ liftBaseWith $ const (forever $ threadDelay maxBound)
     Concurrently (as :: m a) <|> Concurrently bs =
       Concurrently (either id id <$> race as bs)
         \\ (inst :: Forall (Pure m) :- Pure m a)

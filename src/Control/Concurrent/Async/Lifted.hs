@@ -381,7 +381,7 @@ instance MonadBaseControl IO m => Applicative (Concurrently m) where
     Concurrently $ uncurry ($) <$> concurrently fs as
 
 instance MonadBaseControl IO m => Alternative (Concurrently m) where
-  empty = Concurrently . liftBaseWith . const $ forever (threadDelay maxBound)
+  empty = Concurrently $ liftBaseWith $ const (forever $ threadDelay maxBound)
   Concurrently as <|> Concurrently bs =
     Concurrently $ either id id <$> race as bs
 

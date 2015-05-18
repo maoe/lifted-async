@@ -1,5 +1,5 @@
 name:                lifted-async
-version:             0.7.0
+version:             0.7.0.1
 synopsis:            Run lifted IO operations asynchronously and wait for their results
 homepage:            https://github.com/maoe/lifted-async
 bug-reports:         https://github.com/maoe/lifted-async/issues
@@ -12,7 +12,8 @@ category:            Concurrency
 build-type:          Simple
 cabal-version:       >= 1.8
 tested-with:
-    GHC == 7.8.4
+    GHC == 7.10.1
+  , GHC == 7.8.4
   , GHC == 7.6.3
   , GHC == 7.4.2
 
@@ -112,5 +113,5 @@ source-repository head
 
 source-repository this
   type: git
-  tag: v0.7.0
+  tag: v0.7.0.1
   location: https://github.com/maoe/lifted-async.git

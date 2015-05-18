@@ -1,3 +1,7 @@
+## v0.7.0.1 - 2015-05-18
+
+* Fix typecheck error with GHC HEAD (#17)
+
 ## v0.7.0 - 2015-03-30
 
 * Fix the unnecessarily constrained type of link2 (#16)
