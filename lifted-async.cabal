@@ -39,9 +39,11 @@ library
     , lifted-base >= 0.2 && < 0.3
     , transformers-base >= 0.4 && < 0.5
   if flag(monad-control-1)
-    build-depends:
-        constraints >= 0.2 && < 0.5
-      , monad-control == 1.0.*
+    build-depends: monad-control == 1.0.*
+    if impl(ghc >= 7.8)
+        build-depends: constraints >= 0.2 && < 0.7
+    else
+        build-depends: constraints >= 0.2 && < 0.6
   else
     build-depends:
       monad-control == 0.*
