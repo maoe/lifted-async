@@ -1,3 +1,9 @@
+## v0.7.0.2 - 2015-11-26
+
+* Relax upper bound for the constraints package
+    * Upper bound remains < 0.6 for GHC < 7.8 as constraints-0.6 requires the closed type families extension.
+* Drop support for GHC 7.4.2
+
 ## v0.7.0.1 - 2015-05-18
 
 * Fix typecheck error with GHC HEAD (#17)
