@@ -403,9 +403,5 @@ instance MonadBaseControl IO m => Alternative (Concurrently m) where
   Concurrently as <|> Concurrently bs =
     Concurrently $ either id id <$> race as bs
 
-instance MonadBaseControl IO m => Monad (Concurrently m) where
-  return = Concurrently . return
-  Concurrently a >>= f = Concurrently $ a >>= runConcurrently . f
-
 sequenceEither :: MonadBaseControl IO m => Either e (StM m a) -> m (Either e a)
 sequenceEither = either (return . Left) (liftM Right . restoreM)

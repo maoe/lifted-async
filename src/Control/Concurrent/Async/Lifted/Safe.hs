@@ -375,9 +375,4 @@ instance (MonadBaseControl IO m, Forall (Pure m)) =>
       Concurrently (either id id <$> race as bs)
         \\ (inst :: Forall (Pure m) :- Pure m a)
         \\ (inst :: Forall (Pure m) :- Pure m b)
-
-instance (MonadBaseControl IO m, Forall (Pure m)) =>
-  Monad (Concurrently m) where
-    return = Concurrently . return
-    Concurrently a >>= f = Concurrently $ a >>= runConcurrently . f
 #endif
