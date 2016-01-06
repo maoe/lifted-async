@@ -53,6 +53,16 @@ module Control.Concurrent.Async.Lifted.Safe
   , Unsafe.waitEither_
   , waitBoth
 
+#if MIN_VERSION_async(2, 1, 0)
+    -- ** Waiting for multiple 'Async's in STM
+  , A.waitAnySTM
+  , A.waitAnyCatchSTM
+  , A.waitEitherSTM
+  , A.waitEitherCatchSTM
+  , A.waitEitherSTM_
+  , A.waitBothSTM
+#endif
+
     -- ** Linking
   , Unsafe.link, Unsafe.link2
 
