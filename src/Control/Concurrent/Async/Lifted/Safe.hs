@@ -99,6 +99,11 @@ import qualified Control.Concurrent.Async.Lifted as Unsafe
 #if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ < 710
 import Data.Traversable
 #endif
+#if !MIN_VERSION_base(4, 8, 0)
+import Data.Monoid (Monoid(mappend, mempty))
+#elif MIN_VERSION_base(4, 9, 0)
+import Data.Semigroup (Semigroup((<>)))
+#endif
 
 -- | Generalized version of 'A.async'.
 async
@@ -375,4 +380,21 @@ instance (MonadBaseControl IO m, Forall (Pure m)) =>
       Concurrently (either id id <$> race as bs)
         \\ (inst :: Forall (Pure m) :- Pure m a)
         \\ (inst :: Forall (Pure m) :- Pure m b)
+
+#if MIN_VERSION_base(4, 9, 0)
+instance (MonadBaseControl IO m, Semigroup a, Forall (Pure m)) =>
+  Semigroup (Concurrently m a) where
+    (<>) = liftA2 (<>)
+
+instance (MonadBaseControl IO m, Semigroup a, Monoid a, Forall (Pure m)) =>
+  Monoid (Concurrently m a) where
+    mempty = pure mempty
+    mappend = (<>)
+#else
+instance (MonadBaseControl IO m, Monoid a, Forall (Pure m)) =>
+  Monoid (Concurrently m a) where
+    mempty = pure mempty
+    mappend = liftA2 mappend
+#endif
+
 #endif

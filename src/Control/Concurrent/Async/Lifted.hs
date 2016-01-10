@@ -83,6 +83,11 @@ import qualified Control.Exception.Lifted as E
 #if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ < 710
 import Data.Traversable
 #endif
+#if !MIN_VERSION_base(4, 8, 0)
+import Data.Monoid (Monoid(mappend, mempty))
+#elif MIN_VERSION_base(4, 9, 0)
+import Data.Semigroup (Semigroup((<>)))
+#endif
 
 -- | Generalized version of 'A.async'.
 async :: MonadBaseControl IO m => m a -> m (Async (StM m a))
@@ -402,6 +407,21 @@ instance MonadBaseControl IO m => Alternative (Concurrently m) where
   empty = Concurrently $ liftBaseWith $ const (forever $ threadDelay maxBound)
   Concurrently as <|> Concurrently bs =
     Concurrently $ either id id <$> race as bs
+
+#if MIN_VERSION_base(4, 9, 0)
+instance (MonadBaseControl IO m, Semigroup a) =>
+  Semigroup (Concurrently m a) where
+    (<>) = liftA2 (<>)
+
+instance (MonadBaseControl IO m, Semigroup a, Monoid a) =>
+  Monoid (Concurrently m a) where
+    mempty = pure mempty
+    mappend = (<>)
+#else
+instance (MonadBaseControl IO m, Monoid a) => Monoid (Concurrently m a) where
+  mempty = pure mempty
+  mappend = liftA2 mappend
+#endif
 
 sequenceEither :: MonadBaseControl IO m => Either e (StM m a) -> m (Either e a)
 sequenceEither = either (return . Left) (liftM Right . restoreM)
