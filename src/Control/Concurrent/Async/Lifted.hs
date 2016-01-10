@@ -49,11 +49,21 @@ module Control.Concurrent.Async.Lifted
   , waitEither_
   , waitBoth
 
+#if MIN_VERSION_async(2, 1, 0)
+    -- ** Waiting for multiple 'Async's in STM
+  , A.waitAnySTM
+  , A.waitAnyCatchSTM
+  , A.waitEitherSTM
+  , A.waitEitherCatchSTM
+  , A.waitEitherSTM_
+  , A.waitBothSTM
+#endif
+
     -- ** Linking
   , link, link2
 
     -- * Convenient utilities
-  , race, race_, concurrently, mapConcurrently
+  , race, race_, concurrently, mapConcurrently, forConcurrently
   , Concurrently(..)
   ) where
 
@@ -72,6 +82,11 @@ import qualified Control.Exception.Lifted as E
 
 #if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ < 710
 import Data.Traversable
+#endif
+#if !MIN_VERSION_base(4, 8, 0)
+import Data.Monoid (Monoid(mappend, mempty))
+#elif MIN_VERSION_base(4, 9, 0)
+import Data.Semigroup (Semigroup((<>)))
 #endif
 
 -- | Generalized version of 'A.async'.
@@ -352,6 +367,14 @@ mapConcurrently
   -> m (t b)
 mapConcurrently f = runConcurrently . traverse (Concurrently . f)
 
+-- | Generalized version of 'A.forConcurrently'.
+forConcurrently
+  :: (Traversable t, MonadBaseControl IO m)
+  => t a
+  -> (a -> m b)
+  -> m (t b)
+forConcurrently = flip mapConcurrently
+
 -- | Generalized version of 'A.Concurrently'.
 --
 -- A value of type @'Concurrently' m a@ is an IO-based operation that can be
@@ -385,9 +408,20 @@ instance MonadBaseControl IO m => Alternative (Concurrently m) where
   Concurrently as <|> Concurrently bs =
     Concurrently $ either id id <$> race as bs
 
-instance MonadBaseControl IO m => Monad (Concurrently m) where
-  return = Concurrently . return
-  Concurrently a >>= f = Concurrently $ a >>= runConcurrently . f
+#if MIN_VERSION_base(4, 9, 0)
+instance (MonadBaseControl IO m, Semigroup a) =>
+  Semigroup (Concurrently m a) where
+    (<>) = liftA2 (<>)
+
+instance (MonadBaseControl IO m, Semigroup a, Monoid a) =>
+  Monoid (Concurrently m a) where
+    mempty = pure mempty
+    mappend = (<>)
+#else
+instance (MonadBaseControl IO m, Monoid a) => Monoid (Concurrently m a) where
+  mempty = pure mempty
+  mappend = liftA2 mappend
+#endif
 
 sequenceEither :: MonadBaseControl IO m => Either e (StM m a) -> m (Either e a)
 sequenceEither = either (return . Left) (liftM Right . restoreM)

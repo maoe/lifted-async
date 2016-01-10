@@ -60,7 +60,7 @@ before_install:
  - export PATH=~/.local/bin:$PATH
  - travis_retry curl -L https://www.stackage.org/stack/linux-x86_64 | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
  - stack setup --resolver=lts-3.15
- - stack install hpc-coveralls
+ - stack --resolver=lts-3.15 install hpc-coveralls
 
 install:
  - cabal install -j ${FLAGS} --only-dependencies --enable-tests --enable-benchmarks

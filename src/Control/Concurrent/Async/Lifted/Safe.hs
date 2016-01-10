@@ -53,6 +53,16 @@ module Control.Concurrent.Async.Lifted.Safe
   , Unsafe.waitEither_
   , waitBoth
 
+#if MIN_VERSION_async(2, 1, 0)
+    -- ** Waiting for multiple 'Async's in STM
+  , A.waitAnySTM
+  , A.waitAnyCatchSTM
+  , A.waitEitherSTM
+  , A.waitEitherCatchSTM
+  , A.waitEitherSTM_
+  , A.waitBothSTM
+#endif
+
     -- ** Linking
   , Unsafe.link, Unsafe.link2
 
@@ -88,6 +98,11 @@ import qualified Control.Concurrent.Async.Lifted as Unsafe
 
 #if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ < 710
 import Data.Traversable
+#endif
+#if !MIN_VERSION_base(4, 8, 0)
+import Data.Monoid (Monoid(mappend, mempty))
+#elif MIN_VERSION_base(4, 9, 0)
+import Data.Semigroup (Semigroup((<>)))
 #endif
 
 -- | Generalized version of 'A.async'.
@@ -366,8 +381,20 @@ instance (MonadBaseControl IO m, Forall (Pure m)) =>
         \\ (inst :: Forall (Pure m) :- Pure m a)
         \\ (inst :: Forall (Pure m) :- Pure m b)
 
-instance (MonadBaseControl IO m, Forall (Pure m)) =>
-  Monad (Concurrently m) where
-    return = Concurrently . return
-    Concurrently a >>= f = Concurrently $ a >>= runConcurrently . f
+#if MIN_VERSION_base(4, 9, 0)
+instance (MonadBaseControl IO m, Semigroup a, Forall (Pure m)) =>
+  Semigroup (Concurrently m a) where
+    (<>) = liftA2 (<>)
+
+instance (MonadBaseControl IO m, Semigroup a, Monoid a, Forall (Pure m)) =>
+  Monoid (Concurrently m a) where
+    mempty = pure mempty
+    mappend = (<>)
+#else
+instance (MonadBaseControl IO m, Monoid a, Forall (Pure m)) =>
+  Monoid (Concurrently m a) where
+    mempty = pure mempty
+    mappend = liftA2 mappend
+#endif
+
 #endif
