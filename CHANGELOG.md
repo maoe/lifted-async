@@ -1,3 +1,10 @@
+## v0.8.0 - 2016-01-10
+
+* Drop Monad instance for Concurrently
+* Expose STM operations
+* Relax upper bound for base and async
+* Add Monoid and Semigroup instances for Concurrently
+
 ## v0.7.0.2 - 2015-11-26
 
 * Relax upper bound for the constraints package
