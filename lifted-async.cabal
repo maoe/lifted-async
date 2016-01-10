@@ -34,7 +34,7 @@ library
     Control.Concurrent.Async.Lifted
     Control.Concurrent.Async.Lifted.Safe
   build-depends:
-      base >= 4.5 && < 4.9
+      base >= 4.5 && < 4.10
     , async >= 2.0.1 && < 2.2
     , lifted-base >= 0.2 && < 0.3
     , transformers-base >= 0.4 && < 0.5
