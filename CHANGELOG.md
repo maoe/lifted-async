@@ -1,3 +1,7 @@
+## v0.8.0.1 - 2015-01-17
+
+* Relax upper bound for constraints
+
 ## v0.8.0 - 2016-01-10
 
 * Drop Monad instance for Concurrently
