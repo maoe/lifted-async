@@ -1,3 +1,7 @@
+## v0.9.0 - 2016-05-22
+
+* Leverage `StM m a ~ a` in the `Safe` module for faster `wait`/`poll`/`race`/`concurrently`
+
 ## v0.8.0.1 - 2015-01-17
 
 * Relax upper bound for constraints
