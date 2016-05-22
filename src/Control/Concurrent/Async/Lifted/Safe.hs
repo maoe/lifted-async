@@ -306,25 +306,28 @@ waitBoth = Unsafe.waitBoth
 race
   :: forall m a b. (MonadBaseControl IO m, Forall (Pure m))
   => m a -> m b -> m (Either a b)
-race = Unsafe.race
-  \\ (inst :: Forall (Pure m) :- Pure m a)
-  \\ (inst :: Forall (Pure m) :- Pure m b)
+race = unliftFuncs A.race
 
 -- | Generalized version of 'A.race_'.
 race_
   :: forall m a b. (MonadBaseControl IO m, Forall (Pure m))
   => m a -> m b -> m ()
-race_ = Unsafe.race_
-  \\ (inst :: Forall (Pure m) :- Pure m a)
-  \\ (inst :: Forall (Pure m) :- Pure m b)
+race_ = unliftFuncs A.race_
 
 -- | Generalized version of 'A.concurrently'.
 concurrently
   :: forall m a b. (MonadBaseControl IO m, Forall (Pure m))
   => m a -> m b -> m (a, b)
-concurrently = Unsafe.concurrently
-  \\ (inst :: Forall (Pure m) :- Pure m a)
-  \\ (inst :: Forall (Pure m) :- Pure m b)
+concurrently = unliftFuncs A.concurrently
+
+-- | Helper function which converts an 'IO'-specialized combinator
+-- into a generalized combinator.
+unliftFuncs :: forall m a b c. (MonadBaseControl IO m, Forall (Pure m))
+            => (IO a -> IO b -> IO c)
+            -> (m  a -> m  b -> m  c)
+unliftFuncs f left right = liftBaseWith (\run -> f
+  (run left  \\ (inst :: Forall (Pure m) :- Pure m a))
+  (run right \\ (inst :: Forall (Pure m) :- Pure m b)))
 
 -- | Generalized version of 'A.mapConcurrently'.
 mapConcurrently
