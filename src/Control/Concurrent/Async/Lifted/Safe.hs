@@ -306,28 +306,29 @@ waitBoth = Unsafe.waitBoth
 race
   :: forall m a b. (MonadBaseControl IO m, Forall (Pure m))
   => m a -> m b -> m (Either a b)
-race = unliftFuncs A.race
+race = liftBaseOp2_ A.race
 
 -- | Generalized version of 'A.race_'.
 race_
   :: forall m a b. (MonadBaseControl IO m, Forall (Pure m))
   => m a -> m b -> m ()
-race_ = unliftFuncs A.race_
+race_ = liftBaseOp2_ A.race_
 
 -- | Generalized version of 'A.concurrently'.
 concurrently
   :: forall m a b. (MonadBaseControl IO m, Forall (Pure m))
   => m a -> m b -> m (a, b)
-concurrently = unliftFuncs A.concurrently
+concurrently = liftBaseOp2_ A.concurrently
 
--- | Helper function which converts an 'IO'-specialized combinator
--- into a generalized combinator.
-unliftFuncs :: forall m a b c. (MonadBaseControl IO m, Forall (Pure m))
-            => (IO a -> IO b -> IO c)
-            -> (m  a -> m  b -> m  c)
-unliftFuncs f left right = liftBaseWith (\run -> f
-  (run left  \\ (inst :: Forall (Pure m) :- Pure m a))
-  (run right \\ (inst :: Forall (Pure m) :- Pure m b)))
+-- | Similar to 'A.liftBaseOp_' but takes a binary function
+-- and leverages @'StM' m a ~ a@.
+liftBaseOp2_
+  :: forall base m a b c. (MonadBaseControl base m, Forall (Pure m))
+  => (base a -> base b -> base c)
+  -> m a -> m b -> m c
+liftBaseOp2_ f left right = liftBaseWith $ \run -> f
+  (run left \\ (inst :: Forall (Pure m) :- Pure m a))
+  (run right \\ (inst :: Forall (Pure m) :- Pure m b))
 
 -- | Generalized version of 'A.mapConcurrently'.
 mapConcurrently
