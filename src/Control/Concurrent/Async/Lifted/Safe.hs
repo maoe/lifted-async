@@ -50,7 +50,7 @@ module Control.Concurrent.Async.Lifted.Safe
     -- ** Waiting for multiple 'Async's
   , waitAny, waitAnyCatch, waitAnyCancel, waitAnyCatchCancel
   , waitEither, waitEitherCatch, waitEitherCancel, waitEitherCatchCancel
-  , Unsafe.waitEither_
+  , waitEither_
   , waitBoth
 
 #if MIN_VERSION_async(2, 1, 0)
@@ -291,6 +291,10 @@ waitEitherCatchCancel
 waitEitherCatchCancel = (liftBase .) . A.waitEitherCatchCancel
   \\ (inst :: Forall (Pure m) :- Pure m a)
   \\ (inst :: Forall (Pure m) :- Pure m b)
+
+-- | Generalized version of 'A.waitEither_'
+waitEither_ :: MonadBase IO m => Async a -> Async b -> m ()
+waitEither_ = Unsafe.waitEither_
 
 -- | Generalized version of 'A.waitBoth'.
 waitBoth
