@@ -50,7 +50,7 @@ module Control.Concurrent.Async.Lifted.Safe
     -- ** Waiting for multiple 'Async's
   , waitAny, waitAnyCatch, waitAnyCancel, waitAnyCatchCancel
   , waitEither, waitEitherCatch, waitEitherCancel, waitEitherCatchCancel
-  , Unsafe.waitEither_
+  , waitEither_
   , waitBoth
 
 #if MIN_VERSION_async(2, 1, 0)
@@ -192,25 +192,25 @@ withAsyncOnWithUnmask cpu restore = Unsafe.withAsyncOnWithUnmask cpu restore
 
 -- | Generalized version of 'A.wait'.
 wait
-  :: forall m a. (MonadBaseControl IO m, Forall (Pure m))
+  :: forall m a. (MonadBase IO m, Forall (Pure m))
   => Async a -> m a
-wait = Unsafe.wait
+wait = liftBase . A.wait
   \\ (inst :: Forall (Pure m) :- Pure m a)
 
 -- | Generalized version of 'A.poll'.
 poll
-  :: forall m a. (MonadBaseControl IO m, Forall (Pure m))
+  :: forall m a. (MonadBase IO m, Forall (Pure m))
   => Async a
   -> m (Maybe (Either SomeException a))
-poll = Unsafe.poll
+poll = liftBase . A.poll
   \\ (inst :: Forall (Pure m) :- Pure m a)
 
 -- | Generalized version of 'A.waitCatch'.
 waitCatch
-  :: forall m a. (MonadBaseControl IO m, Forall (Pure m))
+  :: forall m a. (MonadBase IO m, Forall (Pure m))
   => Async a
   -> m (Either SomeException a)
-waitCatch = Unsafe.waitCatch
+waitCatch = liftBase . A.waitCatch
   \\ (inst :: Forall (Pure m) :- Pure m a)
 
 -- | Generalized version of 'A.cancel'.
@@ -223,82 +223,86 @@ cancelWith = Unsafe.cancelWith
 
 -- | Generalized version of 'A.waitAny'.
 waitAny
-  :: forall m a. (MonadBaseControl IO m, Forall (Pure m))
+  :: forall m a. (MonadBase IO m, Forall (Pure m))
   => [Async a] -> m (Async a, a)
-waitAny = Unsafe.waitAny
+waitAny = liftBase . A.waitAny
   \\ (inst :: Forall (Pure m) :- Pure m a)
 
 -- | Generalized version of 'A.waitAnyCatch'.
 waitAnyCatch
-  :: forall m a. (MonadBaseControl IO m, Forall (Pure m))
+  :: forall m a. (MonadBase IO m, Forall (Pure m))
   => [Async a]
   -> m (Async a, Either SomeException a)
-waitAnyCatch = Unsafe.waitAnyCatch
+waitAnyCatch = liftBase . A.waitAnyCatch
   \\ (inst :: Forall (Pure m) :- Pure m a)
 
 -- | Generalized version of 'A.waitAnyCancel'.
 waitAnyCancel
-  :: forall m a. (MonadBaseControl IO m, Forall (Pure m))
+  :: forall m a. (MonadBase IO m, Forall (Pure m))
   => [Async a]
   -> m (Async a, a)
-waitAnyCancel = Unsafe.waitAnyCancel
+waitAnyCancel = liftBase . A.waitAnyCancel
   \\ (inst :: Forall (Pure m) :- Pure m a)
 
 -- | Generalized version of 'A.waitAnyCatchCancel'.
 waitAnyCatchCancel
-  :: forall m a. (MonadBaseControl IO m, Forall (Pure m))
+  :: forall m a. (MonadBase IO m, Forall (Pure m))
   => [Async a]
   -> m (Async a, Either SomeException a)
-waitAnyCatchCancel = Unsafe.waitAnyCatchCancel
+waitAnyCatchCancel = liftBase . A.waitAnyCatchCancel
   \\ (inst :: Forall (Pure m) :- Pure m a)
 
 -- | Generalized version of 'A.waitEither'.
 waitEither
-  :: forall m a b. (MonadBaseControl IO m, Forall (Pure m))
+  :: forall m a b. (MonadBase IO m, Forall (Pure m))
   => Async a
   -> Async b
   -> m (Either a b)
-waitEither = Unsafe.waitEither
+waitEither = (liftBase .) . A.waitEither
   \\ (inst :: Forall (Pure m) :- Pure m a)
   \\ (inst :: Forall (Pure m) :- Pure m b)
 
 -- | Generalized version of 'A.waitEitherCatch'.
 waitEitherCatch
-  :: forall m a b. (MonadBaseControl IO m, Forall (Pure m))
+  :: forall m a b. (MonadBase IO m, Forall (Pure m))
   => Async a
   -> Async b
   -> m (Either (Either SomeException a) (Either SomeException b))
-waitEitherCatch = Unsafe.waitEitherCatch
+waitEitherCatch = (liftBase .) . A.waitEitherCatch
   \\ (inst :: Forall (Pure m) :- Pure m a)
   \\ (inst :: Forall (Pure m) :- Pure m b)
 
 -- | Generalized version of 'A.waitEitherCancel'.
 waitEitherCancel
-  :: forall m a b. (MonadBaseControl IO m, Forall (Pure m))
+  :: forall m a b. (MonadBase IO m, Forall (Pure m))
   => Async a
   -> Async b
   -> m (Either a b)
-waitEitherCancel = Unsafe.waitEitherCancel
+waitEitherCancel = (liftBase .) . A.waitEitherCancel
   \\ (inst :: Forall (Pure m) :- Pure m a)
   \\ (inst :: Forall (Pure m) :- Pure m b)
 
 -- | Generalized version of 'A.waitEitherCatchCancel'.
 waitEitherCatchCancel
-  :: forall m a b. (MonadBaseControl IO m, Forall (Pure m))
+  :: forall m a b. (MonadBase IO m, Forall (Pure m))
   => Async a
   -> Async b
   -> m (Either (Either SomeException a) (Either SomeException b))
-waitEitherCatchCancel = Unsafe.waitEitherCatchCancel
+waitEitherCatchCancel = (liftBase .) . A.waitEitherCatchCancel
   \\ (inst :: Forall (Pure m) :- Pure m a)
   \\ (inst :: Forall (Pure m) :- Pure m b)
 
+-- | Generalized version of 'A.waitEither_'
+waitEither_ :: MonadBase IO m => Async a -> Async b -> m ()
+waitEither_ = Unsafe.waitEither_
+
 -- | Generalized version of 'A.waitBoth'.
 waitBoth
-  :: forall m a b. (MonadBaseControl IO m, Forall (Pure m))
+  :: forall m a b. (MonadBase IO m, Forall (Pure m))
   => Async a
   -> Async b
   -> m (a, b)
-waitBoth = Unsafe.waitBoth
+waitBoth = (liftBase .) . A.waitBoth
   \\ (inst :: Forall (Pure m) :- Pure m a)
   \\ (inst :: Forall (Pure m) :- Pure m b)
 
@@ -306,25 +310,29 @@ waitBoth = Unsafe.waitBoth
 race
   :: forall m a b. (MonadBaseControl IO m, Forall (Pure m))
   => m a -> m b -> m (Either a b)
-race = Unsafe.race
-  \\ (inst :: Forall (Pure m) :- Pure m a)
-  \\ (inst :: Forall (Pure m) :- Pure m b)
+race = liftBaseOp2_ A.race
 
 -- | Generalized version of 'A.race_'.
 race_
   :: forall m a b. (MonadBaseControl IO m, Forall (Pure m))
   => m a -> m b -> m ()
-race_ = Unsafe.race_
-  \\ (inst :: Forall (Pure m) :- Pure m a)
-  \\ (inst :: Forall (Pure m) :- Pure m b)
+race_ = liftBaseOp2_ A.race_
 
 -- | Generalized version of 'A.concurrently'.
 concurrently
   :: forall m a b. (MonadBaseControl IO m, Forall (Pure m))
   => m a -> m b -> m (a, b)
-concurrently = Unsafe.concurrently
-  \\ (inst :: Forall (Pure m) :- Pure m a)
-  \\ (inst :: Forall (Pure m) :- Pure m b)
+concurrently = liftBaseOp2_ A.concurrently
+
+-- | Similar to 'A.liftBaseOp_' but takes a binary function
+-- and leverages @'StM' m a ~ a@.
+liftBaseOp2_
+  :: forall base m a b c. (MonadBaseControl base m, Forall (Pure m))
+  => (base a -> base b -> base c)
+  -> m a -> m b -> m c
+liftBaseOp2_ f left right = liftBaseWith $ \run -> f
+  (run left \\ (inst :: Forall (Pure m) :- Pure m a))
+  (run right \\ (inst :: Forall (Pure m) :- Pure m b))
 
 -- | Generalized version of 'A.mapConcurrently'.
 mapConcurrently

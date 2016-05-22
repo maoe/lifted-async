@@ -305,7 +305,7 @@ waitEitherCatchCancel a b =
 -- NOTE: This function discards the monadic effects besides IO in the forked
 -- computation.
 waitEither_
-  :: MonadBaseControl IO m
+  :: MonadBase IO m
   => Async a
   -> Async b
   -> m ()
