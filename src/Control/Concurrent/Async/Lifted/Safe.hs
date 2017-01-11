@@ -67,7 +67,7 @@ module Control.Concurrent.Async.Lifted.Safe
   , Unsafe.link, Unsafe.link2
 
     -- * Convenient utilities
-  , race, race_, concurrently, mapConcurrently
+  , race, race_, concurrently, mapConcurrently, forConcurrently
   , Concurrently(..)
 
 
@@ -341,6 +341,14 @@ mapConcurrently
   -> t a
   -> m (t b)
 mapConcurrently f = runConcurrently . traverse (Concurrently . f)
+
+-- | Generalized version of 'A.forConcurrently'.
+forConcurrently
+  :: (Traversable t, MonadBaseControl IO m, Forall (Pure m))
+  => t a
+  -> (a -> m b)
+  -> m (t b)
+forConcurrently = flip mapConcurrently
 
 -- | Generalized version of 'A.Concurrently'.
 --
