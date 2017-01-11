@@ -67,7 +67,9 @@ module Control.Concurrent.Async.Lifted.Safe
   , Unsafe.link, Unsafe.link2
 
     -- * Convenient utilities
-  , race, race_, concurrently, mapConcurrently, forConcurrently
+  , race, race_, concurrently
+  , mapConcurrently, mapConcurrently_
+  , forConcurrently, forConcurrently_
   , Concurrently(..)
 
 
@@ -97,6 +99,7 @@ import qualified Control.Concurrent.Async as A
 import qualified Control.Concurrent.Async.Lifted as Unsafe
 
 #if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ < 710
+import Data.Foldable
 import Data.Traversable
 #endif
 #if !MIN_VERSION_base(4, 8, 0)
@@ -342,6 +345,14 @@ mapConcurrently
   -> m (t b)
 mapConcurrently f = runConcurrently . traverse (Concurrently . f)
 
+-- | Generalized version of 'A.mapConcurrently_'.
+mapConcurrently_
+  :: (Foldable t, MonadBaseControl IO m, Forall (Pure m))
+  => (a -> m b)
+  -> t a
+  -> m ()
+mapConcurrently_ f = runConcurrently . foldMap (Concurrently . void . f)
+
 -- | Generalized version of 'A.forConcurrently'.
 forConcurrently
   :: (Traversable t, MonadBaseControl IO m, Forall (Pure m))
@@ -349,6 +360,14 @@ forConcurrently
   -> (a -> m b)
   -> m (t b)
 forConcurrently = flip mapConcurrently
+
+-- | Generalized version of 'A.forConcurrently_'.
+forConcurrently_
+  :: (Foldable t, MonadBaseControl IO m, Forall (Pure m))
+  => t a
+  -> (a -> m b)
+  -> m ()
+forConcurrently_ = flip mapConcurrently_
 
 -- | Generalized version of 'A.Concurrently'.
 --
