@@ -1,3 +1,7 @@
+## v0.9.1 - 2017-01-13
+
+* Add (for|map)Concurrently_ (#21)
+
 ## v0.9.0 - 2016-05-22
 
 * Leverage `StM m a ~ a` in the `Safe` module for faster `wait`/`poll`/`race`/`concurrently`
