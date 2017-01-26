@@ -1,3 +1,7 @@
+## v0.9.1.1 - 2017-01-26
+
+* Relax upper version bound for constraints
+
 ## v0.9.1 - 2017-01-13
 
 * Add (for|map)Concurrently_ (#21)
