@@ -363,7 +363,7 @@ concurrently left right =
 {-# INLINABLE concurrently #-}
 
 concurrently_ :: MonadBaseControl IO m => m a -> m b -> m ()
-concurrently_ left right = concurrently left right >> return ()
+concurrently_ left right = void $ concurrently left right
 {-# INLINABLE concurrently_ #-}
 
 -- | Generalized version of 'A.mapConcurrently'.
