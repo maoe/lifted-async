@@ -1,3 +1,7 @@
+## v0.9.2
+
+* Add concurrently_ (#22)
+
 ## v0.9.1.1 - 2017-01-26
 
 * Relax upper version bound for constraints
