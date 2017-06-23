@@ -1,5 +1,5 @@
 name:                lifted-async
-version:             0.9.1.1
+version:             0.9.2
 synopsis:            Run lifted IO operations asynchronously and wait for their results
 homepage:            https://github.com/maoe/lifted-async
 bug-reports:         https://github.com/maoe/lifted-async/issues
@@ -35,8 +35,8 @@ library
     Control.Concurrent.Async.Lifted
     Control.Concurrent.Async.Lifted.Safe
   build-depends:
-      base >= 4.5 && < 4.10
-    , async >= 2.0.1 && < 2.2
+      base >= 4.5 && < 4.11
+    , async >= 2.1.1 && < 2.2
     , lifted-base >= 0.2 && < 0.3
     , transformers-base >= 0.4 && < 0.5
   if flag(monad-control-1)
@@ -115,5 +115,5 @@ source-repository head
 
 source-repository this
   type: git
-  tag: v0.9.1.1
+  tag: v0.9.2
   location: https://github.com/maoe/lifted-async.git

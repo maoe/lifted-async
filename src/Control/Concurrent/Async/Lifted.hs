@@ -63,7 +63,7 @@ module Control.Concurrent.Async.Lifted
   , link, link2
 
     -- * Convenient utilities
-  , race, race_, concurrently
+  , race, race_, concurrently, concurrently_
   , mapConcurrently, mapConcurrently_
   , forConcurrently, forConcurrently_
   , Concurrently(..)
@@ -361,6 +361,10 @@ concurrently left right =
   withAsync right $ \b ->
   waitBoth a b
 {-# INLINABLE concurrently #-}
+
+concurrently_ :: MonadBaseControl IO m => m a -> m b -> m ()
+concurrently_ left right = void $ concurrently left right
+{-# INLINABLE concurrently_ #-}
 
 -- | Generalized version of 'A.mapConcurrently'.
 mapConcurrently
