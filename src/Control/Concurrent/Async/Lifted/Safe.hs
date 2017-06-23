@@ -67,7 +67,7 @@ module Control.Concurrent.Async.Lifted.Safe
   , Unsafe.link, Unsafe.link2
 
     -- * Convenient utilities
-  , race, race_, concurrently
+  , race, race_, concurrently, concurrently_
   , mapConcurrently, mapConcurrently_
   , forConcurrently, forConcurrently_
   , Concurrently(..)
@@ -326,6 +326,11 @@ concurrently
   :: forall m a b. (MonadBaseControl IO m, Forall (Pure m))
   => m a -> m b -> m (a, b)
 concurrently = liftBaseOp2_ A.concurrently
+
+concurrently_
+  :: forall m a b. (MonadBaseControl IO m, Forall (Pure m))
+  => m a -> m b -> m ()
+concurrently_ = liftBaseOp2_ A.concurrently_
 
 -- | Similar to 'A.liftBaseOp_' but takes a binary function
 -- and leverages @'StM' m a ~ a@.
