@@ -330,7 +330,7 @@ concurrently = liftBaseOp2_ A.concurrently
 concurrently_
   :: forall m a b. (MonadBaseControl IO m, Forall (Pure m))
   => m a -> m b -> m ()
-concurrently_ left right = void $ concurrently left right
+concurrently_ = liftBaseOp2_ A.concurrently_
 
 -- | Similar to 'A.liftBaseOp_' but takes a binary function
 -- and leverages @'StM' m a ~ a@.
