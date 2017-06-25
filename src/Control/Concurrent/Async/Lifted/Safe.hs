@@ -327,6 +327,7 @@ concurrently
   => m a -> m b -> m (a, b)
 concurrently = liftBaseOp2_ A.concurrently
 
+-- | Generalized version of 'A.concurrently_'.
 concurrently_
   :: forall m a b. (MonadBaseControl IO m, Forall (Pure m))
   => m a -> m b -> m ()

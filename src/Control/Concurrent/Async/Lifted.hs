@@ -362,6 +362,7 @@ concurrently left right =
   waitBoth a b
 {-# INLINABLE concurrently #-}
 
+-- | Generalized version of 'A.concurrently_'.
 concurrently_ :: MonadBaseControl IO m => m a -> m b -> m ()
 concurrently_ left right = void $ concurrently left right
 {-# INLINABLE concurrently_ #-}
