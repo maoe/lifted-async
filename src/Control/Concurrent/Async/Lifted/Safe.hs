@@ -70,6 +70,7 @@ module Control.Concurrent.Async.Lifted.Safe
   , race, race_, concurrently, concurrently_
   , mapConcurrently, mapConcurrently_
   , forConcurrently, forConcurrently_
+  , replicateConcurrently, replicateConcurrently_
   , Concurrently(..)
 
 
@@ -87,6 +88,7 @@ module Control.Concurrent.Async.Lifted.Safe
 import Control.Applicative
 import Control.Concurrent (threadDelay)
 import Control.Monad
+import Data.Foldable (fold)
 
 import Control.Concurrent.Async (Async)
 import Control.Exception.Lifted (SomeException, Exception)
@@ -374,6 +376,24 @@ forConcurrently_
   -> (a -> m b)
   -> m ()
 forConcurrently_ = flip mapConcurrently_
+
+-- | Generalized version of 'A.replicateConcurrently'.
+replicateConcurrently
+  :: (MonadBaseControl IO m, Forall (Pure m))
+  => Int
+  -> m a
+  -> m [a]
+replicateConcurrently n =
+  runConcurrently . sequenceA . replicate n . Concurrently
+
+-- | Generalized version of 'A.replicateConcurrently_'.
+replicateConcurrently_
+  :: (MonadBaseControl IO m, Forall (Pure m))
+  => Int
+  -> m a
+  -> m ()
+replicateConcurrently_ n =
+  runConcurrently . fold . replicate n . Concurrently . void
 
 -- | Generalized version of 'A.Concurrently'.
 --
