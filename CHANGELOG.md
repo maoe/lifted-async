@@ -1,4 +1,10 @@
-## v0.9.2
+## v0.9.3 - 2017-06-26
+
+* Add Haddock comments for concurrently_ (#23)
+* Add replicateConcurrently and replicateConcurrently_
+* Test with GHC 8.2.1 on Travis
+
+## v0.9.2 - 2017-06-24
 
 * Add concurrently_ (#22)
 

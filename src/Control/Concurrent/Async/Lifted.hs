@@ -66,12 +66,14 @@ module Control.Concurrent.Async.Lifted
   , race, race_, concurrently, concurrently_
   , mapConcurrently, mapConcurrently_
   , forConcurrently, forConcurrently_
+  , replicateConcurrently, replicateConcurrently_
   , Concurrently(..)
   ) where
 
 import Control.Applicative
 import Control.Concurrent (threadDelay)
 import Control.Monad ((>=>), forever, liftM, void)
+import Data.Foldable (fold)
 import GHC.IO (unsafeUnmask)
 import Prelude hiding (mapM)
 
@@ -362,6 +364,7 @@ concurrently left right =
   waitBoth a b
 {-# INLINABLE concurrently #-}
 
+-- | Generalized version of 'A.concurrently_'.
 concurrently_ :: MonadBaseControl IO m => m a -> m b -> m ()
 concurrently_ left right = void $ concurrently left right
 {-# INLINABLE concurrently_ #-}
@@ -397,6 +400,24 @@ forConcurrently_
   -> (a -> m b)
   -> m ()
 forConcurrently_ = flip mapConcurrently_
+
+-- | Generalized version of 'A.replicateConcurrently'.
+replicateConcurrently
+  :: MonadBaseControl IO m
+  => Int
+  -> m a
+  -> m [a]
+replicateConcurrently n =
+  runConcurrently . sequenceA . replicate n . Concurrently
+
+-- | Generalized version of 'A.replicateConcurrently_'.
+replicateConcurrently_
+  :: MonadBaseControl IO m
+  => Int
+  -> m a
+  -> m ()
+replicateConcurrently_ n =
+  runConcurrently . fold . replicate n . Concurrently . void
 
 -- | Generalized version of 'A.Concurrently'.
 --
