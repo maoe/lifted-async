@@ -1,3 +1,7 @@
+## v0.9.3.1 - 2017-12-12
+
+* Relax upper version bound for tasty-hunit
+
 ## v0.9.3 - 2017-06-26
 
 * Add Haddock comments for concurrently_ (#23)
