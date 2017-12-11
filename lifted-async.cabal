@@ -113,8 +113,3 @@ source-repository head
   type: git
   branch: develop
   location: https://github.com/maoe/lifted-async.git
-
-source-repository this
-  type: git
-  tag: v0.9.3
-  location: https://github.com/maoe/lifted-async.git
