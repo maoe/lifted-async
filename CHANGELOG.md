@@ -1,3 +1,7 @@
+## v0.9.3.2 - 2017-12-12
+
+* Minor improvements in the cabal file
+
 ## v0.9.3.1 - 2017-12-12
 
 * Relax upper version bound for tasty-hunit
