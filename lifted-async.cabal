@@ -69,7 +69,7 @@ test-suite test-lifted-async
     , monad-control
     , mtl
     , tasty
-    , tasty-hunit == 0.9.*
+    , tasty-hunit >= 0.9 && < 0.11
     , tasty-th
 
 test-suite regression-tests
@@ -82,7 +82,7 @@ test-suite regression-tests
     , async
     , lifted-async
     , mtl
-    , tasty-hunit == 0.9.*
+    , tasty-hunit >= 0.9 && < 0.11
     , tasty-th
 
 benchmark benchmark-lifted-async
