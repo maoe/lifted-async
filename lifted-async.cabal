@@ -1,5 +1,5 @@
 name:                lifted-async
-version:             0.9.3.2
+version:             0.9.3.3
 synopsis:            Run lifted IO operations asynchronously and wait for their results
 homepage:            https://github.com/maoe/lifted-async
 bug-reports:         https://github.com/maoe/lifted-async/issues
@@ -7,7 +7,7 @@ license:             BSD3
 license-file:        LICENSE
 author:              Mitsutoshi Aoe
 maintainer:          Mitsutoshi Aoe <maoe@foldr.in>
-copyright:           Copyright (C) 2012-2017 Mitsutoshi Aoe
+copyright:           Copyright (C) 2012-2018 Mitsutoshi Aoe
 category:            Concurrency
 build-type:          Simple
 cabal-version:       >= 1.8
@@ -43,7 +43,7 @@ library
   if flag(monad-control-1)
     build-depends: monad-control == 1.0.*
     if impl(ghc >= 7.8)
-        build-depends: constraints >= 0.2 && < 0.10
+        build-depends: constraints >= 0.2 && < 0.11
     else
         build-depends: constraints >= 0.2 && < 0.6
   else
