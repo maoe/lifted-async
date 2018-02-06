@@ -41,8 +41,15 @@ module Control.Concurrent.Async.Lifted.Safe
 
     -- ** Quering 'Async's
   , wait, poll, waitCatch
-  , cancel, cancelWith
+  , cancel
+#if MIN_VERSION_async(2, 2, 0)
+  , uninterruptibleCancel
+#endif
+  , cancelWith
   , A.asyncThreadId
+#if MIN_VERSION_async(2, 2, 0)
+  , A.AsyncCancelled(..)
+#endif
 
     -- ** STM operations
   , A.waitSTM, A.pollSTM, A.waitCatchSTM
@@ -65,6 +72,9 @@ module Control.Concurrent.Async.Lifted.Safe
 
     -- ** Linking
   , Unsafe.link, Unsafe.link2
+#if MIN_VERSION_async(2, 2, 0)
+  , A.ExceptionInLinkedThread(..)
+#endif
 
     -- * Convenient utilities
   , race, race_, concurrently, concurrently_
@@ -73,7 +83,9 @@ module Control.Concurrent.Async.Lifted.Safe
   , replicateConcurrently, replicateConcurrently_
   , Concurrently(..)
 
-
+#if MIN_VERSION_async(2, 2, 0)
+  , A.compareAsyncs
+#endif
   )
 #else
 {-# WARNING
@@ -225,6 +237,12 @@ cancel = Unsafe.cancel
 -- | Generalized version of 'A.cancelWith'.
 cancelWith :: (MonadBase IO m, Exception e) => Async a -> e -> m ()
 cancelWith = Unsafe.cancelWith
+
+#if MIN_VERSION_async(2, 2, 0)
+-- | Generalized version of 'A.uninterruptibleCancel'.
+uninterruptibleCancel :: MonadBase IO m => Async a -> m ()
+uninterruptibleCancel = Unsafe.uninterruptibleCancel
+#endif
 
 -- | Generalized version of 'A.waitAny'.
 waitAny

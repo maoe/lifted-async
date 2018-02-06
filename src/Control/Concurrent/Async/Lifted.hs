@@ -37,8 +37,16 @@ module Control.Concurrent.Async.Lifted
   , withAsyncWithUnmask, withAsyncOnWithUnmask
 
     -- ** Quering 'Async's
-  , wait, poll, waitCatch, cancel, cancelWith
+  , wait, poll, waitCatch
+  , cancel
+#if MIN_VERSION_async(2, 2, 0)
+  , uninterruptibleCancel
+#endif
+  , cancelWith
   , A.asyncThreadId
+#if MIN_VERSION_async(2, 2, 0)
+  , A.AsyncCancelled(..)
+#endif
 
     -- ** STM operations
   , A.waitSTM, A.pollSTM, A.waitCatchSTM
@@ -61,6 +69,9 @@ module Control.Concurrent.Async.Lifted
 
     -- ** Linking
   , link, link2
+#if MIN_VERSION_async(2, 2, 0)
+  , A.ExceptionInLinkedThread(..)
+#endif
 
     -- * Convenient utilities
   , race, race_, concurrently, concurrently_
@@ -68,6 +79,10 @@ module Control.Concurrent.Async.Lifted
   , forConcurrently, forConcurrently_
   , replicateConcurrently, replicateConcurrently_
   , Concurrently(..)
+
+#if MIN_VERSION_async(2, 2, 0)
+  , A.compareAsyncs
+#endif
   ) where
 
 import Control.Applicative
@@ -208,18 +223,18 @@ poll a =
   maybe (return Nothing) (liftM Just . sequenceEither)
 
 -- | Generalized version of 'A.cancel'.
---
--- NOTE: This function discards the monadic effects besides IO in the forked
--- computation.
 cancel :: MonadBase IO m => Async a -> m ()
 cancel = liftBase . A.cancel
 
 -- | Generalized version of 'A.cancelWith'.
---
--- NOTE: This function discards the monadic effects besides IO in the forked
--- computation.
 cancelWith :: (MonadBase IO m, Exception e) => Async a -> e -> m ()
 cancelWith = (liftBase .) . A.cancelWith
+
+#if MIN_VERSION_async(2, 2, 0)
+-- | Generalized version of 'A.uninterruptibleCancel'.
+uninterruptibleCancel :: MonadBase IO m => Async a -> m ()
+uninterruptibleCancel = liftBase . A.uninterruptibleCancel
+#endif
 
 -- | Generalized version of 'A.waitCatch'.
 waitCatch
