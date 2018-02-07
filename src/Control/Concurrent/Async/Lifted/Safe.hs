@@ -24,7 +24,6 @@ mess up monadic effects. If your monad stack is stateful, use
 -}
 
 module Control.Concurrent.Async.Lifted.Safe
-#if MIN_VERSION_monad_control(1, 0, 0)
   (
     -- * Asynchronous actions
     A.Async
@@ -76,16 +75,8 @@ module Control.Concurrent.Async.Lifted.Safe
 
   , A.compareAsyncs
   )
-#else
-{-# WARNING
-  "This module is available only if built with @monad-control >= 1.0.0@.\
-  If you have an older version of @monad-control@, use\
-  @Control.Concurrent.Async.Lifted@ instead."
-  #-}
-#endif
   where
 
-#if MIN_VERSION_monad_control(1, 0, 0)
 import Control.Applicative
 import Control.Concurrent (threadDelay)
 import Control.Monad
@@ -461,6 +452,4 @@ instance (MonadBaseControl IO m, Monoid a, Forall (Pure m)) =>
   Monoid (Concurrently m a) where
     mempty = pure mempty
     mappend = liftA2 mappend
-#endif
-
 #endif

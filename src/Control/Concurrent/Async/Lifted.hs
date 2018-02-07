@@ -17,11 +17,9 @@ from 'IO' to all monads in either 'MonadBase' or 'MonadBaseControl'.
 All the functions restore the monadic effects in the forked computation
 unless specified otherwise.
 
-#if MIN_VERSION_monad_control(1, 0, 0)
 If your monad stack satisfies @'StM' m a ~ a@ (e.g. the reader monad), consider
 using @Control.Concurrent.Async.Lifted.Safe@ module, which prevents you from
 messing up monadic effects.
-#endif
 -}
 
 module Control.Concurrent.Async.Lifted
