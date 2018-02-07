@@ -24,11 +24,6 @@ description:
   This package provides IO operations from @async@ package lifted to any
   instance of 'MonadBase' or 'MonadBaseControl'.
 
-flag monad-control-1
-  description: User moand-control == 1.*
-  default: True
-  manual: False
-
 library
   exposed-modules:
     Control.Concurrent.Async.Lifted
