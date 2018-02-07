@@ -157,6 +157,7 @@ case_link = do
     Left e -> case fromException e of
       Just (ExceptionInLinkedThread _ e') ->
         fromException e' @?= Just TestException
-      Nothing ->
-        assertFailure "ExceptionInLinkedThread should contain a TestException"
+      Nothing -> assertFailure $
+        "expected ExceptionInLinkedThread _ TestException"
+          ++ " but got " ++ show e
     Right _ -> assertFailure "An exception must be raised."
