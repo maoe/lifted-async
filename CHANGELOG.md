@@ -1,3 +1,9 @@
+## v0.10.0 - 2018-02-08
+
+* Support only async >= 2.2
+* Drop support for monad-control == 0.*
+* Drop support for GHC < 7.10
+
 ## v0.9.3.3 - 2018-01-22
 
 * Relax upper version bound for constraints
