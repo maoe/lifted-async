@@ -59,7 +59,7 @@ case_withAsync_wait2 = do
   a <- withAsync (threadDelay 1000000) $ return
   r <- waitCatch a
   case r of
-    Left e  -> fromException e @?= Just ThreadKilled
+    Left e  -> fromException e @?= Just AsyncCancelled
     Right _ -> assertFailure ""
 
 case_async_cancel :: Assertion

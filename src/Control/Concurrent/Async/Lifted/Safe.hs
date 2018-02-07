@@ -3,7 +3,6 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GADTs #-}
-{-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
@@ -12,7 +11,7 @@
 
 {- |
 Module      : Control.Concurrent.Async.Lifted.Safe
-Copyright   : Copyright (C) 2012-2017 Mitsutoshi Aoe
+Copyright   : Copyright (C) 2012-2018 Mitsutoshi Aoe
 License     : BSD-style (see the file LICENSE)
 Maintainer  : Mitsutoshi Aoe <maoe@foldr.in>
 Stability   : experimental
@@ -25,7 +24,6 @@ mess up monadic effects. If your monad stack is stateful, use
 -}
 
 module Control.Concurrent.Async.Lifted.Safe
-#if MIN_VERSION_monad_control(1, 0, 0)
   (
     -- * Asynchronous actions
     A.Async
@@ -41,8 +39,11 @@ module Control.Concurrent.Async.Lifted.Safe
 
     -- ** Quering 'Async's
   , wait, poll, waitCatch
-  , cancel, cancelWith
+  , cancel
+  , uninterruptibleCancel
+  , cancelWith
   , A.asyncThreadId
+  , A.AsyncCancelled(..)
 
     -- ** STM operations
   , A.waitSTM, A.pollSTM, A.waitCatchSTM
@@ -53,7 +54,6 @@ module Control.Concurrent.Async.Lifted.Safe
   , waitEither_
   , waitBoth
 
-#if MIN_VERSION_async(2, 1, 0)
     -- ** Waiting for multiple 'Async's in STM
   , A.waitAnySTM
   , A.waitAnyCatchSTM
@@ -61,10 +61,10 @@ module Control.Concurrent.Async.Lifted.Safe
   , A.waitEitherCatchSTM
   , A.waitEitherSTM_
   , A.waitBothSTM
-#endif
 
     -- ** Linking
   , Unsafe.link, Unsafe.link2
+  , A.ExceptionInLinkedThread(..)
 
     -- * Convenient utilities
   , race, race_, concurrently, concurrently_
@@ -73,18 +73,10 @@ module Control.Concurrent.Async.Lifted.Safe
   , replicateConcurrently, replicateConcurrently_
   , Concurrently(..)
 
-
+  , A.compareAsyncs
   )
-#else
-{-# WARNING
-  "This module is available only if built with @monad-control >= 1.0.0@.\
-  If you have an older version of @monad-control@, use\
-  @Control.Concurrent.Async.Lifted@ instead."
-  #-}
-#endif
   where
 
-#if MIN_VERSION_monad_control(1, 0, 0)
 import Control.Applicative
 import Control.Concurrent (threadDelay)
 import Control.Monad
@@ -225,6 +217,10 @@ cancel = Unsafe.cancel
 -- | Generalized version of 'A.cancelWith'.
 cancelWith :: (MonadBase IO m, Exception e) => Async a -> e -> m ()
 cancelWith = Unsafe.cancelWith
+
+-- | Generalized version of 'A.uninterruptibleCancel'.
+uninterruptibleCancel :: MonadBase IO m => Async a -> m ()
+uninterruptibleCancel = Unsafe.uninterruptibleCancel
 
 -- | Generalized version of 'A.waitAny'.
 waitAny
@@ -456,6 +452,4 @@ instance (MonadBaseControl IO m, Monoid a, Forall (Pure m)) =>
   Monoid (Concurrently m a) where
     mempty = pure mempty
     mappend = liftA2 mappend
-#endif
-
 #endif

@@ -1,13 +1,12 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE UndecidableInstances #-}
 
 {- |
 Module      : Control.Concurrent.Async.Lifted
-Copyright   : Copyright (C) 2012-2017 Mitsutoshi Aoe
+Copyright   : Copyright (C) 2012-2018 Mitsutoshi Aoe
 License     : BSD-style (see the file LICENSE)
 Maintainer  : Mitsutoshi Aoe <maoe@foldr.in>
 Stability   : experimental
@@ -18,11 +17,9 @@ from 'IO' to all monads in either 'MonadBase' or 'MonadBaseControl'.
 All the functions restore the monadic effects in the forked computation
 unless specified otherwise.
 
-#if MIN_VERSION_monad_control(1, 0, 0)
 If your monad stack satisfies @'StM' m a ~ a@ (e.g. the reader monad), consider
 using @Control.Concurrent.Async.Lifted.Safe@ module, which prevents you from
 messing up monadic effects.
-#endif
 -}
 
 module Control.Concurrent.Async.Lifted
@@ -37,8 +34,12 @@ module Control.Concurrent.Async.Lifted
   , withAsyncWithUnmask, withAsyncOnWithUnmask
 
     -- ** Quering 'Async's
-  , wait, poll, waitCatch, cancel, cancelWith
+  , wait, poll, waitCatch
+  , cancel
+  , uninterruptibleCancel
+  , cancelWith
   , A.asyncThreadId
+  , A.AsyncCancelled(..)
 
     -- ** STM operations
   , A.waitSTM, A.pollSTM, A.waitCatchSTM
@@ -49,7 +50,6 @@ module Control.Concurrent.Async.Lifted
   , waitEither_
   , waitBoth
 
-#if MIN_VERSION_async(2, 1, 0)
     -- ** Waiting for multiple 'Async's in STM
   , A.waitAnySTM
   , A.waitAnyCatchSTM
@@ -57,10 +57,10 @@ module Control.Concurrent.Async.Lifted
   , A.waitEitherCatchSTM
   , A.waitEitherSTM_
   , A.waitBothSTM
-#endif
 
     -- ** Linking
   , link, link2
+  , A.ExceptionInLinkedThread(..)
 
     -- * Convenient utilities
   , race, race_, concurrently, concurrently_
@@ -68,14 +68,16 @@ module Control.Concurrent.Async.Lifted
   , forConcurrently, forConcurrently_
   , replicateConcurrently, replicateConcurrently_
   , Concurrently(..)
+
+  , A.compareAsyncs
   ) where
 
 import Control.Applicative
 import Control.Concurrent (threadDelay)
-import Control.Monad ((>=>), forever, liftM, void)
+import Control.Monad ((>=>), forever, void)
 import Data.Foldable (fold)
 import GHC.IO (unsafeUnmask)
-import Prelude hiding (mapM)
+import Prelude
 
 import Control.Concurrent.Async (Async)
 import Control.Exception.Lifted (SomeException, Exception)
@@ -205,21 +207,19 @@ poll
   -> m (Maybe (Either SomeException a))
 poll a =
   liftBase (A.poll a) >>=
-  maybe (return Nothing) (liftM Just . sequenceEither)
+  maybe (return Nothing) (fmap Just . sequenceEither)
 
 -- | Generalized version of 'A.cancel'.
---
--- NOTE: This function discards the monadic effects besides IO in the forked
--- computation.
 cancel :: MonadBase IO m => Async a -> m ()
 cancel = liftBase . A.cancel
 
 -- | Generalized version of 'A.cancelWith'.
---
--- NOTE: This function discards the monadic effects besides IO in the forked
--- computation.
 cancelWith :: (MonadBase IO m, Exception e) => Async a -> e -> m ()
 cancelWith = (liftBase .) . A.cancelWith
+
+-- | Generalized version of 'A.uninterruptibleCancel'.
+uninterruptibleCancel :: MonadBase IO m => Async a -> m ()
+uninterruptibleCancel = liftBase . A.uninterruptibleCancel
 
 -- | Generalized version of 'A.waitCatch'.
 waitCatch
@@ -273,7 +273,7 @@ waitEither
   -> m (Either a b)
 waitEither a b =
   liftBase (A.waitEither a b) >>=
-  either (liftM Left . restoreM) (liftM Right . restoreM)
+  either (fmap Left . restoreM) (fmap Right . restoreM)
 
 -- | Generalized version of 'A.waitEitherCatch'.
 waitEitherCatch
@@ -283,7 +283,7 @@ waitEitherCatch
   -> m (Either (Either SomeException a) (Either SomeException b))
 waitEitherCatch a b =
   liftBase (A.waitEitherCatch a b) >>=
-  either (liftM Left . sequenceEither) (liftM Right . sequenceEither)
+  either (fmap Left . sequenceEither) (fmap Right . sequenceEither)
 
 -- | Generalized version of 'A.waitEitherCancel'.
 waitEitherCancel
@@ -293,7 +293,7 @@ waitEitherCancel
   -> m (Either a b)
 waitEitherCancel a b =
   liftBase (A.waitEitherCancel a b) >>=
-  either (liftM Left . restoreM) (liftM Right . restoreM)
+  either (fmap Left . restoreM) (fmap Right . restoreM)
 
 -- | Generalized version of 'A.waitEitherCatchCancel'.
 waitEitherCatchCancel
@@ -303,7 +303,7 @@ waitEitherCatchCancel
   -> m (Either (Either SomeException a) (Either SomeException b))
 waitEitherCatchCancel a b =
   liftBase (A.waitEitherCatch a b) >>=
-  either (liftM Left . sequenceEither) (liftM Right . sequenceEither)
+  either (fmap Left . sequenceEither) (fmap Right . sequenceEither)
 
 -- | Generalized version of 'A.waitEither_'.
 --
@@ -468,4 +468,4 @@ instance (MonadBaseControl IO m, Monoid a) => Monoid (Concurrently m a) where
 #endif
 
 sequenceEither :: MonadBaseControl IO m => Either e (StM m a) -> m (Either e a)
-sequenceEither = either (return . Left) (liftM Right . restoreM)
+sequenceEither = either (return . Left) (fmap Right . restoreM)

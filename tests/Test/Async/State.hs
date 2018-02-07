@@ -73,7 +73,7 @@ case_withAsync_wait2 = do
     waitCatch a
   case r of
     Left e  -> do
-      fromException e @?= Just ThreadKilled
+      fromException e @?= Just AsyncCancelled
       s @?= value
     Right _ -> assertFailure "An exception must be raised."
 
@@ -154,6 +154,10 @@ case_link = do
     cancelWith a TestException
     wait a
   case r of
-    Left e -> do
-      fromException e @?= Just TestException
+    Left e -> case fromException e of
+      Just (ExceptionInLinkedThread _ e') ->
+        fromException e' @?= Just TestException
+      Nothing -> assertFailure $
+        "expected ExceptionInLinkedThread _ TestException"
+          ++ " but got " ++ show e
     Right _ -> assertFailure "An exception must be raised."

@@ -1,8 +1,6 @@
 *~
-/.cabal-sandbox/
-/cabal-dev/
-/cabal.sandbox.config
-/dist/
-/*.sublime-*
-/.stack-work/
-/dist-newstyle/
+.ghc.*
+.stack-work/
+cabal.project.local
+dist-newstyle/
+dist/
