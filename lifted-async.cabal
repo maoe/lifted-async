@@ -59,6 +59,7 @@ test-suite test-lifted-async
     Test.Async.IO
     Test.Async.State
     Test.Async.Reader
+  ghc-options: -Wall -threaded
   build-depends:
       base
     , HUnit
