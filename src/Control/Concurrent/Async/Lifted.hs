@@ -39,14 +39,10 @@ module Control.Concurrent.Async.Lifted
     -- ** Quering 'Async's
   , wait, poll, waitCatch
   , cancel
-#if MIN_VERSION_async(2, 2, 0)
   , uninterruptibleCancel
-#endif
   , cancelWith
   , A.asyncThreadId
-#if MIN_VERSION_async(2, 2, 0)
   , A.AsyncCancelled(..)
-#endif
 
     -- ** STM operations
   , A.waitSTM, A.pollSTM, A.waitCatchSTM
@@ -57,7 +53,6 @@ module Control.Concurrent.Async.Lifted
   , waitEither_
   , waitBoth
 
-#if MIN_VERSION_async(2, 1, 0)
     -- ** Waiting for multiple 'Async's in STM
   , A.waitAnySTM
   , A.waitAnyCatchSTM
@@ -65,13 +60,10 @@ module Control.Concurrent.Async.Lifted
   , A.waitEitherCatchSTM
   , A.waitEitherSTM_
   , A.waitBothSTM
-#endif
 
     -- ** Linking
   , link, link2
-#if MIN_VERSION_async(2, 2, 0)
   , A.ExceptionInLinkedThread(..)
-#endif
 
     -- * Convenient utilities
   , race, race_, concurrently, concurrently_
@@ -80,9 +72,7 @@ module Control.Concurrent.Async.Lifted
   , replicateConcurrently, replicateConcurrently_
   , Concurrently(..)
 
-#if MIN_VERSION_async(2, 2, 0)
   , A.compareAsyncs
-#endif
   ) where
 
 import Control.Applicative
@@ -230,11 +220,9 @@ cancel = liftBase . A.cancel
 cancelWith :: (MonadBase IO m, Exception e) => Async a -> e -> m ()
 cancelWith = (liftBase .) . A.cancelWith
 
-#if MIN_VERSION_async(2, 2, 0)
 -- | Generalized version of 'A.uninterruptibleCancel'.
 uninterruptibleCancel :: MonadBase IO m => Async a -> m ()
 uninterruptibleCancel = liftBase . A.uninterruptibleCancel
-#endif
 
 -- | Generalized version of 'A.waitCatch'.
 waitCatch
