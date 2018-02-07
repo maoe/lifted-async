@@ -74,7 +74,7 @@ module Control.Concurrent.Async.Lifted
 
 import Control.Applicative
 import Control.Concurrent (threadDelay)
-import Control.Monad ((>=>), forever, fmap, void)
+import Control.Monad ((>=>), forever, void)
 import Data.Foldable (fold)
 import GHC.IO (unsafeUnmask)
 import Prelude
