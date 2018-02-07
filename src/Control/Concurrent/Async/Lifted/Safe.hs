@@ -11,7 +11,7 @@
 
 {- |
 Module      : Control.Concurrent.Async.Lifted.Safe
-Copyright   : Copyright (C) 2012-2017 Mitsutoshi Aoe
+Copyright   : Copyright (C) 2012-2018 Mitsutoshi Aoe
 License     : BSD-style (see the file LICENSE)
 Maintainer  : Mitsutoshi Aoe <maoe@foldr.in>
 Stability   : experimental
