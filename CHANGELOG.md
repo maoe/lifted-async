@@ -1,3 +1,9 @@
+# Revision history for lifted-async
+
+## v0.10.0.1 - 2018-03-10
+
+* Relax upper version bound for base in GHC 8.4.1 (#25)
+
 ## v0.10.0 - 2018-02-08
 
 * Support only async >= 2.2
