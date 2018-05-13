@@ -1,5 +1,9 @@
 # Revision history for lifted-async
 
+## v0.10.0.2 - 2018-05-13
+
+* Allow test_link to fail because it's non-deterministic (#26)
+
 ## v0.10.0.1 - 2018-03-10
 
 * Relax upper version bound for base in GHC 8.4.1 (#25)
