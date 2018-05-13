@@ -8,6 +8,7 @@ import Data.Maybe (isJust, isNothing)
 
 import Control.Concurrent.Lifted
 import Control.Exception.Lifted as E
+import Test.Tasty.ExpectedFailure
 
 #if MIN_VERSION_monad_control(1, 0, 0)
 import Control.Concurrent.Async.Lifted.Safe
@@ -111,18 +112,20 @@ case_async_poll2 =
     when (isNothing r') $
       liftIO $ assertFailure "The result must not be Nothing."
 
-case_link :: Assertion
-case_link = do
-  r <- try $ flip runReaderT value $ do
-    a <- async $ threadDelay 1000000 >> return value
-    link a
-    cancelWith a TestException
-    wait a
-  case r of
-    Left e -> case fromException e of
-      Just (ExceptionInLinkedThread _ e') ->
-        fromException e' @?= Just TestException
-      Nothing -> assertFailure $
-        "expected ExceptionInLinkedThread _ TestException"
-          ++ " but got " ++ show e
-    Right _ -> assertFailure "An exception must be raised."
+test_ignored :: [TestTree]
+test_ignored =
+  [ ignoreTestBecause "see #26" $ testCase "link" $ do
+    r <- try $ flip runReaderT value $ do
+      a <- async $ threadDelay 1000000 >> return value
+      link a
+      cancelWith a TestException
+      wait a
+    case r of
+      Left e -> case fromException e of
+        Just (ExceptionInLinkedThread _ e') ->
+          fromException e' @?= Just TestException
+        Nothing -> assertFailure $
+          "expected ExceptionInLinkedThread _ TestException"
+            ++ " but got " ++ show e
+      Right _ -> assertFailure "An exception must be raised."
+  ]
