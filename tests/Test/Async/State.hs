@@ -7,6 +7,7 @@ import Data.Maybe (isJust, isNothing)
 
 import Control.Concurrent.Lifted
 import Control.Exception.Lifted as E
+import Test.Tasty.ExpectedFailure
 
 import Control.Concurrent.Async.Lifted
 import Test.Async.Common
@@ -146,18 +147,20 @@ case_withAsync_waitBoth2 = do
         waitBoth a b
   liftIO $ s @?= value
 
-case_link :: Assertion
-case_link = do
-  r <- try $ flip runStateT value $ do
-    a <- async $ threadDelay 1000000 >> return value
-    link a
-    cancelWith a TestException
-    wait a
-  case r of
-    Left e -> case fromException e of
-      Just (ExceptionInLinkedThread _ e') ->
-        fromException e' @?= Just TestException
-      Nothing -> assertFailure $
-        "expected ExceptionInLinkedThread _ TestException"
-          ++ " but got " ++ show e
-    Right _ -> assertFailure "An exception must be raised."
+test_ignored :: [TestTree]
+test_ignored =
+  [ ignoreTestBecause "see #26" $ testCase "link" $ do
+    r <- try $ flip runStateT value $ do
+      a <- async $ threadDelay 1000000 >> return value
+      link a
+      cancelWith a TestException
+      wait a
+    case r of
+      Left e -> case fromException e of
+        Just (ExceptionInLinkedThread _ e') ->
+          fromException e' @?= Just TestException
+        Nothing -> assertFailure $
+          "expected ExceptionInLinkedThread _ TestException"
+            ++ " but got " ++ show e
+      Right _ -> assertFailure "An exception must be raised."
+  ]
