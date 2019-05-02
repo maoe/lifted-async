@@ -1,13 +1,13 @@
 name:                lifted-async
-version:             0.10.0.3
+version:             0.10.0.4
 synopsis:            Run lifted IO operations asynchronously and wait for their results
 homepage:            https://github.com/maoe/lifted-async
 bug-reports:         https://github.com/maoe/lifted-async/issues
 license:             BSD3
 license-file:        LICENSE
 author:              Mitsutoshi Aoe
-maintainer:          Mitsutoshi Aoe <maoe@foldr.in>
-copyright:           Copyright (C) 2012-2018 Mitsutoshi Aoe
+maintainer:          Mitsutoshi Aoe <me@maoe.name>
+copyright:           Copyright (C) 2012-2019 Mitsutoshi Aoe
 category:            Concurrency
 build-type:          Simple
 cabal-version:       >= 1.8
