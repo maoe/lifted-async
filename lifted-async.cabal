@@ -31,13 +31,13 @@ library
     Control.Concurrent.Async.Lifted
     Control.Concurrent.Async.Lifted.Safe
   build-depends:
-      base >= 4.5 && < 4.13
+      base >= 4.5 && < 4.14
     , async >= 2.2 && < 2.3
     , lifted-base >= 0.2 && < 0.3
     , transformers-base >= 0.4 && < 0.5
     , monad-control == 1.0.*
   if impl(ghc >= 7.8)
-    build-depends: constraints >= 0.2 && < 0.11
+    build-depends: constraints >= 0.2 && < 0.12
   else
     build-depends: constraints >= 0.2 && < 0.6
   ghc-options: -Wall
