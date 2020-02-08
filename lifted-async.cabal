@@ -1,5 +1,5 @@
 name:                lifted-async
-version:             0.10.0.4
+version:             0.10.0.5
 synopsis:            Run lifted IO operations asynchronously and wait for their results
 homepage:            https://github.com/maoe/lifted-async
 bug-reports:         https://github.com/maoe/lifted-async/issues
@@ -12,7 +12,7 @@ category:            Concurrency
 build-type:          Simple
 cabal-version:       >= 1.8
 tested-with:
-  GHC == 8.8.1
+  GHC == 8.8.2
   GHC == 8.6.5
   GHC == 8.4.4
   GHC == 8.2.2
@@ -38,7 +38,7 @@ library
     , transformers-base >= 0.4 && < 0.5
     , monad-control == 1.0.*
   if impl(ghc >= 7.8)
-    build-depends: constraints >= 0.2 && < 0.12
+    build-depends: constraints >= 0.2 && < 0.13
   else
     build-depends: constraints >= 0.2 && < 0.6
   ghc-options: -Wall
