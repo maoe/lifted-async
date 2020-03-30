@@ -12,7 +12,8 @@ category:            Concurrency
 build-type:          Simple
 cabal-version:       >= 1.8
 tested-with:
-  GHC == 8.8.2
+  GHC == 8.10.1
+  GHC == 8.8.3
   GHC == 8.6.5
   GHC == 8.4.4
   GHC == 8.2.2
@@ -32,7 +33,7 @@ library
     Control.Concurrent.Async.Lifted
     Control.Concurrent.Async.Lifted.Safe
   build-depends:
-      base >= 4.5 && < 4.14
+      base >= 4.5 && < 4.15
     , async >= 2.2 && < 2.3
     , lifted-base >= 0.2 && < 0.3
     , transformers-base >= 0.4 && < 0.5
