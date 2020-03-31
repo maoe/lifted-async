@@ -1,5 +1,9 @@
 # Revision history for lifted-async
 
+## v0.10.0.6 - 2020-03-31
+
+* Relax upper version bound for base to suppose GHC 8.10 ([#30](https://github.com/maoe/lifted-async/pull/30))
+
 ## v0.10.0.5 - 2020-02-08
 
 * Relax upper version bounds for constraints
