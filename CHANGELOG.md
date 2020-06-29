@@ -1,5 +1,9 @@
 # Revision history for lifted-async
 
+## v0.10.1.1 - 2020-06-29
+
+* Bump up cabal-version to 1.24
+
 ## v0.10.1 - 2020-06-29
 
 * Fix typechecking errors with GHC HEAD 8.11 ([#31](https://github.com/maoe/lifted-async/pull/31))
