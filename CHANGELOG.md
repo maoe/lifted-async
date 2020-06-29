@@ -1,5 +1,9 @@
 # Revision history for lifted-async
 
+## v0.10.1 - 2020-06-29
+
+* Fix typechecking errors with GHC HEAD 8.11 ([#31](https://github.com/maoe/lifted-async/pull/31))
+
 ## v0.10.0.6 - 2020-03-31
 
 * Relax upper version bound for base to suppose GHC 8.10 ([#30](https://github.com/maoe/lifted-async/pull/30))
