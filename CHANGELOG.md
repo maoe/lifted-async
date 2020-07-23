@@ -1,5 +1,9 @@
 # Revision history for lifted-async
 
+## v0.10.1.2 - 2020-07-23
+
+* Relax upper version bound for tasty-expected-failure
+
 ## v0.10.1.1 - 2020-06-29
 
 * Bump up cabal-version to 1.24
