@@ -12,7 +12,8 @@ copyright:           Copyright (C) 2012-2020 Mitsutoshi Aoe
 category:            Concurrency
 build-type:          Simple
 tested-with:
-  GHC == 8.10.1
+  GHC == 9.0.1
+  GHC == 8.10.3
   GHC == 8.8.3
   GHC == 8.6.5
   GHC == 8.4.4
@@ -33,13 +34,13 @@ library
     Control.Concurrent.Async.Lifted
     Control.Concurrent.Async.Lifted.Safe
   build-depends:
-      base >= 4.5 && < 4.15
+      base >= 4.5 && < 4.16
     , async >= 2.2 && < 2.3
     , lifted-base >= 0.2 && < 0.3
     , transformers-base >= 0.4 && < 0.5
     , monad-control == 1.0.*
   if impl(ghc >= 7.8)
-    build-depends: constraints >= 0.2 && < 0.13
+    build-depends: constraints >= 0.2 && < 0.14
   else
     build-depends: constraints >= 0.2 && < 0.6
   ghc-options: -Wall
