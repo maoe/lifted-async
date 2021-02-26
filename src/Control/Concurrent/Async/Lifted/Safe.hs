@@ -98,7 +98,7 @@ import Data.Traversable
 #endif
 #if !MIN_VERSION_base(4, 8, 0)
 import Data.Monoid (Monoid(mappend, mempty))
-#elif MIN_VERSION_base(4, 9, 0)
+#elif MIN_VERSION_base(4, 9, 0) && !MIN_VERSION_base(4, 13, 0)
 import Data.Semigroup (Semigroup((<>)))
 #endif
 
