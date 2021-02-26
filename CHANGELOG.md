@@ -1,5 +1,11 @@
 # Revision history for lifted-async
 
+## v0.10.1.3 - 2021-02-26
+
+* Support GHC 9.0.1 ([#33](https://github.com/maoe/lifted-async/pull/33))
+* Switch from Travis CI to GitHub Actions
+* Switch from criterion to tasty-bench
+
 ## v0.10.1.2 - 2020-07-23
 
 * Relax upper version bound for tasty-expected-failure
