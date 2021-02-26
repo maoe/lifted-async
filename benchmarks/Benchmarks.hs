@@ -13,11 +13,11 @@ main = defaultMain
       , bench "lifted-async" $ whnfIO asyncWait_liftedAsync
       , bench "lifted-async-safe" $ whnfIO asyncWait_liftedAsyncSafe
       ]
-  , bgroup "async-cancel-waitCatch"
-      [ bench "async" $ whnfIO asyncCancelWaitCatch_async
-      , bench "lifted-async" $ whnfIO asyncCancelWaitCatch_liftedAsync
-      , bench "lifted-async-safe" $ whnfIO asyncCancelWaitCatch_liftedAsyncSafe
-      ]
+  -- , bgroup "async-cancel-waitCatch"
+  --     [ bench "async" $ whnfIO asyncCancelWaitCatch_async
+  --     , bench "lifted-async" $ whnfIO asyncCancelWaitCatch_liftedAsync
+  --     , bench "lifted-async-safe" $ whnfIO asyncCancelWaitCatch_liftedAsyncSafe
+  --     ]
   , bgroup "waitAny"
       [ bench "async" $ whnfIO waitAny_async
       , bench "lifted-async" $ whnfIO waitAny_liftedAsync
