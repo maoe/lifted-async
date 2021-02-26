@@ -2,7 +2,15 @@ cradle:
   cabal:
     - path: "src"
       component: "lib:lifted-async"
-    - path: "test-lifted-async"
-      component: "test:tests"
-    - path: "regression-tests"
-      component: "test:tests"
+
+    - path: "tests"
+      component: "lifted-async:test:test-lifted-async"
+
+    - path: "tests"
+      component: "lifted-async:test:regression-tests"
+
+    - path: "benchmarks/Benchmarks.hs"
+      component: "lifted-async:bench:benchmark-lifted-async"
+
+    - path: "benchmarks/Benchmarks.hs"
+      component: "lifted-async:bench:benchmark-lifted-async-threaded"
