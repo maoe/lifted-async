@@ -1,7 +1,7 @@
 module Main where
 import Control.Exception (SomeException(..))
 
-import Criterion.Main
+import Test.Tasty.Bench (bench, bgroup, defaultMain, nfIO, whnfIO)
 import qualified Control.Concurrent.Async as A
 import qualified Control.Concurrent.Async.Lifted as L
 import qualified Control.Concurrent.Async.Lifted.Safe as LS
