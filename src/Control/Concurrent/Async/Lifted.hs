@@ -139,7 +139,7 @@ withAsync
   => m a
   -> (Async (StM m a) -> m b)
   -> m b
-withAsync = withAsyncUsing async
+withAsync = liftWithAsync A.withAsync
 {-# INLINABLE withAsync #-}
 
 -- | Generalized version of 'A.withAsyncBound'.
@@ -148,8 +148,16 @@ withAsyncBound
   => m a
   -> (Async (StM m a) -> m b)
   -> m b
-withAsyncBound = withAsyncUsing asyncBound
+withAsyncBound = liftWithAsync A.withAsyncBound
 {-# INLINABLE withAsyncBound #-}
+
+liftWithAsync
+  :: MonadBaseControl IO m
+  => (IO (StM m a) -> (Async (StM m a) -> IO (StM m b)) -> IO (StM m b))
+  -> (m a -> (Async (StM m a) -> m b) -> m b)
+liftWithAsync withA action cont = restoreM =<< do
+  liftBaseWith $ \runInIO -> do
+    withA (runInIO action) (runInIO . cont)
 
 -- | Generalized version of 'A.withAsyncOn'.
 withAsyncOn
