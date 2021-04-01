@@ -190,11 +190,11 @@ withAsyncUsing
   -> m b
 withAsyncUsing fork action inner = E.mask $ \restore -> do
   a <- fork $ restore action
-  r <- restore (inner a) `E.catch` \e -> do
-    cancel a
-    E.throwIO (e :: SomeException)
-  cancel a
-  return r
+  restore (inner a)
+    `E.finally` uninterruptibleCancel a
+    `E.catch` \e -> do
+      uninterruptibleCancel a
+      E.throwIO (e :: SomeException)
 
 -- | Generalized version of 'A.wait'.
 wait :: MonadBaseControl IO m => Async (StM m a) -> m a
