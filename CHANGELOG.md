@@ -1,5 +1,10 @@
 # Revision history for lifted-async
 
+## v0.10.2 - 20201-04-02
+
+* Define withAsync in terms of corresponding function from async ([#36](https://github.com/maoe/lifted-async/pull/36))
+  * Fixes [#34](https://github.com/maoe/lifted-async/issues/34)
+
 ## v0.10.1.3 - 2021-02-26
 
 * Support GHC 9.0.1 ([#33](https://github.com/maoe/lifted-async/pull/33))
