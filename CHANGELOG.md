@@ -1,5 +1,9 @@
 # Revision history for lifted-async
 
+## v0.10.2.1 - 2021-07-23
+
+* Relax upper version bound for tasty-bench
+
 ## v0.10.2 - 2021-04-02
 
 * Define withAsync in terms of corresponding function from async ([#36](https://github.com/maoe/lifted-async/pull/36))
