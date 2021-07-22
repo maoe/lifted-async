@@ -11,5 +11,5 @@ This package provides IO operations from [async](http://hackage.haskell.org/pack
 Contact information
 ==========
 
-This library is written and maintained by Mitsutoshi Aoe <maoe@foldr.in>.
+This library is written and maintained by Mitsutoshi Aoe <me@maoe.name>.
 [Pull requests](https://github.com/maoe/lifted-async/pulls) and [bug reports](https://github.com/maoe/lifted-async/issues) are welcome. A chat room is available on [Gitter](https://gitter.im/maoe/lifted-async).
