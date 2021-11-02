@@ -1,5 +1,9 @@
 # Revision history for lifted-async
 
+## v0.10.2.2 - 2021-11-02
+
+* Allow base-4.17 for GHC 9.2.1 ([#37](https://github.com/maoe/lifted-async/pull/37))
+
 ## v0.10.2.1 - 2021-07-23
 
 * Relax upper version bound for tasty-bench
