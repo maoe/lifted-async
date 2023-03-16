@@ -2,7 +2,8 @@
 module Test.Async.State
   ( stateTestGroup
   ) where
-import Control.Monad.State
+import Control.Monad (void, when)
+import Control.Monad.State (runStateT, get, modify, liftIO)
 import Data.Maybe (isJust, isNothing)
 
 import Control.Concurrent.Lifted
