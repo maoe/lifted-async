@@ -3,7 +3,8 @@
 module Test.Async.Reader
   ( readerTestGroup
   ) where
-import Control.Monad.Reader
+import Control.Monad (void, when)
+import Control.Monad.Reader (runReaderT, liftIO)
 import Data.Maybe (isJust, isNothing)
 
 import Control.Concurrent.Lifted
