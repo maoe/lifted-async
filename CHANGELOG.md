@@ -1,5 +1,10 @@
 # Revision history for lifted-async
 
+## v0.10.2.5 - 2023-11-11
+
+* Support GHC 9.8 ([#42](https://github.com/maoe/lifted-async/issues/42))
+* Allow base-4.19, bump CI to GHC 9.8.1 ([#43](https://github.com/maoe/lifted-async/pull/43))
+
 ## v0.10.2.4 - 2022-03-19
 
 * Support mtl-2.3.1, allow base-4.18 (GHC 9.6) ([#41](https://github.com/maoe/lifted-async/pull/41))
