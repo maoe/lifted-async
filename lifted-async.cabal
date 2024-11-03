@@ -1,6 +1,6 @@
 cabal-version:       1.24
 name:                lifted-async
-version:             0.10.2.6
+version:             0.10.2.7
 synopsis:            Run lifted IO operations asynchronously and wait for their results
 homepage:            https://github.com/maoe/lifted-async
 bug-reports:         https://github.com/maoe/lifted-async/issues
