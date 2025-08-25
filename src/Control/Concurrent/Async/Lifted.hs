@@ -86,13 +86,7 @@ import Control.Monad.Trans.Control
 import qualified Control.Concurrent.Async as A
 import qualified Control.Exception.Lifted as E
 
-#if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ < 710
-import Data.Foldable
-import Data.Traversable
-#endif
-#if !MIN_VERSION_base(4, 8, 0)
-import Data.Monoid (Monoid(mappend, mempty))
-#elif MIN_VERSION_base(4, 9, 0) && !MIN_VERSION_base(4, 13, 0)
+#if !MIN_VERSION_base(4, 11, 0)
 import Data.Semigroup (Semigroup((<>)))
 #endif
 
@@ -460,7 +454,6 @@ instance MonadBaseControl IO m => Alternative (Concurrently m) where
   Concurrently as <|> Concurrently bs =
     Concurrently $ either id id <$> race as bs
 
-#if MIN_VERSION_base(4, 9, 0)
 instance (MonadBaseControl IO m, Semigroup a) =>
   Semigroup (Concurrently m a) where
     (<>) = liftA2 (<>)
@@ -469,11 +462,6 @@ instance (MonadBaseControl IO m, Semigroup a, Monoid a) =>
   Monoid (Concurrently m a) where
     mempty = pure mempty
     mappend = (<>)
-#else
-instance (MonadBaseControl IO m, Monoid a) => Monoid (Concurrently m a) where
-  mempty = pure mempty
-  mappend = liftA2 mappend
-#endif
 
 sequenceEither :: MonadBaseControl IO m => Either e (StM m a) -> m (Either e a)
 sequenceEither = either (return . Left) (fmap Right . restoreM)

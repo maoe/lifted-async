@@ -1,12 +1,9 @@
-{-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE FlexibleContexts #-}
 module Test.Async.Common
   ( value
   , TestException(..)
   , module X
   ) where
-
-import Data.Typeable
 
 import Control.Exception.Lifted
 import Test.Tasty as X
@@ -17,6 +14,6 @@ value :: Int
 value = 42
 
 data TestException = TestException
-  deriving (Eq, Show, Typeable)
+  deriving (Eq, Show)
 
 instance Exception TestException
