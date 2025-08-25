@@ -62,10 +62,8 @@ test-suite test-lifted-async
   ghc-options: -Wall -threaded
   build-depends:
       base
-    , HUnit
     , lifted-async
     , lifted-base
-    , monad-control
     , mtl
     , tasty
     , tasty-expected-failure < 0.13
@@ -80,9 +78,7 @@ test-suite regression-tests
   ghc-options: -Wall -threaded
   build-depends:
       base
-    , async
     , lifted-async
-    , mtl
     , tasty-hunit >= 0.9 && < 0.11
     , tasty-th
   default-language: Haskell2010
@@ -96,7 +92,6 @@ benchmark benchmark-lifted-async
       base
     , async
     , tasty-bench < 0.5
-    , deepseq
     , lifted-async
   default-language: Haskell2010
 
@@ -109,7 +104,6 @@ benchmark benchmark-lifted-async-threaded
       base
     , async
     , tasty-bench < 0.5
-    , deepseq
     , lifted-async
   default-language: Haskell2010
 
