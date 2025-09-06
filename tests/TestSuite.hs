@@ -1,4 +1,4 @@
-{-# LANGUAGE ScopedTypeVariables,DeriveDataTypeable #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 module Main where
 import Test.Tasty (defaultMain, testGroup)
 

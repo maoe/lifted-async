@@ -9,11 +9,7 @@ import Data.Maybe (isJust, isNothing)
 import Control.Concurrent.Lifted
 import Control.Exception.Lifted as E
 
-#if MIN_VERSION_monad_control(1, 0, 0)
 import Control.Concurrent.Async.Lifted.Safe
-#else
-import Control.Concurrent.Async.Lifted
-#endif
 import Test.Async.Common
 
 ioTestGroup :: TestTree

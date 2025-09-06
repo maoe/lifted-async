@@ -1,5 +1,9 @@
 # Revision history for lifted-async
 
+## v0.11.0 - 2025-09-06
+
+* Drop support for GHC 7 and allow base-4.22 ([#47](https://github.com/maoe/lifted-async/pull/47))
+
 ## v0.10.2.7 - 2024-11-03
 
 * Allow base-4.21, tasty-bench-0.4, bump Haskell CI to GHC 9.12.0 ([#46](https://github.com/maoe/lifted-async/pull/46))
